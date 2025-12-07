@@ -1,0 +1,56 @@
+services:
+
+  gateway:
+    build:
+      context: .
+      dockerfile: API_GATEWAY/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_SERVICE_ADDRESS=auth-service:8082
+      - JWT_SECRET=my_super_secure_delivery_app_secret_key_2025
+    depends_on:
+      - auth
+  auth:
+    build:
+      context: .
+      dockerfile: AUTH/Dockerfile
+    container_name: auth-service
+    ports:
+      - "8082:8082" # Expose gRPC port to host
+    environment:
+      # Database Connection
+      DB_HOST: auth-db # Must match the container name below
+      DB_USER: postgres
+      DB_PASSWORD: postgrespassword
+      DB_NAME: auth_db
+      DB_PORT: 5432 # Internal port of the database container
+
+      # App Config
+      PORT: 8082
+      JWT_SECRET: "my_super_secure_delivery_app_secret_key_2025"
+    depends_on:
+      auth-db:
+        condition: service_healthy # Waits for DB to be ready before starting app
+
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    restart: always
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5433:5432" # External Port 5433 -> Internal Port 5432
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth_data:
