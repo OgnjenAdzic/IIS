@@ -26,7 +26,7 @@ func NewAuthHandler(us *service.UserService, js *service.JWTService) *AuthHandle
 func (h *AuthHandler) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 
 	// 1. Validation
-	if req.Role == pb.UserRole_ROLE_UNKNOWN {
+	if req.Role == pb.UserRole_UNKNOWN {
 		return nil, status.Error(codes.InvalidArgument, "Role is required")
 	}
 
@@ -100,13 +100,13 @@ func (h *AuthHandler) ValidateToken(ctx context.Context, req *pb.ValidateTokenRe
 
 func mapProtoRoleToModel(pRole pb.UserRole) models.Role {
 	switch pRole {
-	case pb.UserRole_ROLE_ADMIN:
+	case pb.UserRole_ADMIN:
 		return models.RoleAdmin
-	case pb.UserRole_ROLE_CUSTOMER:
+	case pb.UserRole_CUSTOMER:
 		return models.RoleCustomer
-	case pb.UserRole_ROLE_DELIVERY_PERSON:
+	case pb.UserRole_DELIVERY_PERSON:
 		return models.RoleDeliveryPerson
-	case pb.UserRole_ROLE_RESTAURANT_WORKER:
+	case pb.UserRole_RESTAURANT_WORKER:
 		return models.RoleRestaurantWorker
 	default:
 		return models.RoleCustomer
@@ -116,14 +116,14 @@ func mapProtoRoleToModel(pRole pb.UserRole) models.Role {
 func mapModelRoleToProto(mRole models.Role) pb.UserRole {
 	switch mRole {
 	case models.RoleAdmin:
-		return pb.UserRole_ROLE_ADMIN
+		return pb.UserRole_ADMIN
 	case models.RoleCustomer:
-		return pb.UserRole_ROLE_CUSTOMER
+		return pb.UserRole_CUSTOMER
 	case models.RoleDeliveryPerson:
-		return pb.UserRole_ROLE_DELIVERY_PERSON
+		return pb.UserRole_DELIVERY_PERSON
 	case models.RoleRestaurantWorker:
-		return pb.UserRole_ROLE_RESTAURANT_WORKER
+		return pb.UserRole_RESTAURANT_WORKER
 	default:
-		return pb.UserRole_ROLE_UNKNOWN
+		return pb.UserRole_UNKNOWN
 	}
 }

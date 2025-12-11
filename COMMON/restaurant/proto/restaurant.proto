@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package restaurant;
+
+option go_package = "/COMMON/restaurant/proto";
+
+import "google/api/annotations.proto";
+
+service RestaurantService {
+  // 1. Create Restaurant (Admin Only)
+  rpc CreateRestaurant (CreateRestaurantRequest) returns (RestaurantResponse) {
+    option (google.api.http) = {
+      post: "/restaurant"
+      body: "*"
+    };
+  }
+
+  // 2. Toggle Open/Closed Status (Admin/Worker)
+  rpc UpdateStatus (UpdateStatusRequest) returns (RestaurantResponse) {
+    option (google.api.http) = {
+      put: "/restaurant/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 3. Add Item to Menu (Admin)
+  rpc AddMenuItem (AddMenuItemRequest) returns (MenuItemResponse) {
+    option (google.api.http) = {
+      post: "/restaurant/{restaurantId}/menu"
+      body: "*"
+    };
+  }
+
+  // 4. Get All Restaurants (Public)
+  rpc GetAllRestaurants (GetAllRestaurantsRequest) returns (GetAllRestaurantsResponse) {
+    option (google.api.http) = {
+      get: "/restaurant"
+    };
+  }
+
+  // 5. Get Restaurant Menu/Items (Public)
+  rpc GetRestaurant (GetRestaurantRequest) returns (RestaurantResponse) {
+    option (google.api.http) = {
+      get: "/restaurant/{id}"
+    };
+  }
+}
+
+// --- MESSAGES ---
+
+// Used inside the Menu message
+message MenuItem {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+}
+
+// --- THIS WAS MISSING ---
+message MenuItemResponse {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+}
+// ------------------------
+
+message Menu {
+  string id = 1;
+  repeated MenuItem items = 2;
+}
+
+message RestaurantResponse {
+  string id = 1;
+  string name = 2;
+  string category = 3;
+  bool isOpen = 4;
+  Menu menu = 5;
+}
+
+message CreateRestaurantRequest {
+  string name = 1;
+  string category = 2;
+}
+
+message UpdateStatusRequest {
+  string id = 1;
+  bool isOpen = 2;
+}
+
+message AddMenuItemRequest {
+  string restaurantId = 1;
+  string name = 2;
+  double price = 3;
+}
+
+message GetAllRestaurantsRequest {
+  // Empty for now, or add filters later
+}
+
+message GetAllRestaurantsResponse {
+  repeated RestaurantResponse restaurants = 1;
+}
+
+message GetRestaurantRequest {
+  string id = 1;
+}

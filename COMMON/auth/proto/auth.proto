@@ -30,11 +30,11 @@ service AuthService {
 }
 
 enum UserRole {
-  ROLE_UNKNOWN = 0; 
-  ROLE_CUSTOMER = 1;
-  ROLE_ADMIN = 2;
-  ROLE_DELIVERY_PERSON = 3;
-  ROLE_RESTAURANT_WORKER = 4;
+  UNKNOWN = 0; 
+  CUSTOMER = 1;
+  ADMIN = 2;
+  DELIVERY_PERSON = 3;
+  RESTAURANT_WORKER = 4;
 }
 
 message RegisterRequest {
