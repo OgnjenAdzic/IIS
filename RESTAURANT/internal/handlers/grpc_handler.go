@@ -40,6 +40,24 @@ func authorizeAdmin(ctx context.Context) error {
 	return nil
 }
 
+func authorizeRestaurantWorker(ctx context.Context) error {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return status.Error(codes.Unauthenticated, "No metadata found")
+	}
+	// Gateway sends "Grpc-Metadata-User-Role"
+	roles := md.Get("user-role")
+	if len(roles) == 0 {
+		return status.Error(codes.Unauthenticated, "No role found")
+	}
+
+	// IMPORTANT: Check the exact string your Auth Service generates
+	if roles[0] != "RESTAURANT_WORKER" {
+		return status.Error(codes.PermissionDenied, "Restaurant worker access required")
+	}
+	return nil
+}
+
 // 1. Create (Admin Only)
 func (h *RestaurantHandler) CreateRestaurant(ctx context.Context, req *pb.CreateRestaurantRequest) (*pb.RestaurantResponse, error) {
 	if err := authorizeAdmin(ctx); err != nil {
@@ -55,7 +73,7 @@ func (h *RestaurantHandler) CreateRestaurant(ctx context.Context, req *pb.Create
 
 // 2. Add Item (Admin Only)
 func (h *RestaurantHandler) AddMenuItem(ctx context.Context, req *pb.AddMenuItemRequest) (*pb.MenuItemResponse, error) {
-	if err := authorizeAdmin(ctx); err != nil {
+	if err := authorizeRestaurantWorker(ctx); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +90,7 @@ func (h *RestaurantHandler) AddMenuItem(ctx context.Context, req *pb.AddMenuItem
 
 // 3. Update Status (Admin Only)
 func (h *RestaurantHandler) UpdateStatus(ctx context.Context, req *pb.UpdateStatusRequest) (*pb.RestaurantResponse, error) {
-	if err := authorizeAdmin(ctx); err != nil {
+	if err := authorizeRestaurantWorker(ctx); err != nil {
 		return nil, err
 	}
 	res, err := h.service.UpdateStatus(req.Id, req.IsOpen)
