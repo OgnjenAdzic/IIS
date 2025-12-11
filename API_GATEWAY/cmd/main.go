@@ -11,6 +11,7 @@ import (
 
 	// Import definitions from COMMON
 	pbAuth "COMMON/auth/proto"
+	pbRestaurant "COMMON/restaurant/proto"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -50,6 +51,16 @@ func main() {
 		log.Fatalf("Failed to register Auth Service: %v", err)
 	}
 	fmt.Println("Auth Service Registered at " + authAddr)
+
+	restAddr := os.Getenv("RESTAURANT_SERVICE_ADDRESS")
+	if restAddr == "" {
+		restAddr = "restaurant-service:8083"
+	}
+	err = pbRestaurant.RegisterRestaurantServiceHandlerFromEndpoint(ctx, gwmux, restAddr, opts)
+	if err != nil {
+		log.Fatalf("Failed to register Restaurant: %v", err)
+	}
+	fmt.Println("Restaurant Service Registered at " + restAddr)
 
 	rootMux := http.NewServeMux()
 
