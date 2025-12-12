@@ -1,0 +1,24 @@
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-lg font-bold text-gray-900">Restaurant Status</h3>
+            <p class="text-gray-500 text-sm">Control online availability</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <!-- Status Indicator -->
+            <div class="flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-colors duration-300"
+                [ngClass]="isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                <span class="w-3 h-3 rounded-full" [ngClass]="isOpen ? 'bg-green-500' : 'bg-red-500'"></span>
+                {{ isOpen ? 'OPEN FOR BUSINESS' : 'CURRENTLY CLOSED' }}
+            </div>
+
+            <!-- Toggle Button -->
+            <button (click)="toggle()"
+                class="px-6 py-2 rounded-lg font-semibold text-white transition-colors duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                [ngClass]="isOpen ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'">
+                {{ isOpen ? 'Close Restaurant' : 'Open Restaurant' }}
+            </button>
+        </div>
+    </div>
+</div>

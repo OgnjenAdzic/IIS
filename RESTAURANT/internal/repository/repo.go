@@ -37,14 +37,31 @@ func (r *RestaurantRepository) Create(restaurant *models.Restaurant) error {
 func (r *RestaurantRepository) GetAll() ([]models.Restaurant, error) {
 	var restaurants []models.Restaurant
 	// Preload Menu and Items so we see everything
-	err := r.DB.Preload("Menu.Items").Find(&restaurants).Error
+	err := r.DB.Preload("Menu.Items", "is_deleted = ?", false).Find(&restaurants).Error
 	return restaurants, err
 }
 
 func (r *RestaurantRepository) GetById(id string) (*models.Restaurant, error) {
 	var restaurant models.Restaurant
-	err := r.DB.Preload("Menu.Items").Where("id = ?", id).First(&restaurant).Error
+	err := r.DB.Preload("Menu.Items", "is_deleted = ?", false).Where("id = ?", id).First(&restaurant).Error
 	return &restaurant, err
+}
+
+func (r *RestaurantRepository) SoftDeleteMenuItem(itemId string) error {
+	return r.DB.Model(&models.MenuItem{}).Where("id = ?", itemId).Update("is_deleted", true).Error
+}
+
+func (r *RestaurantRepository) UpdateItemPrice(itemId string, price float64) (*models.MenuItem, error) {
+	var item models.MenuItem
+	if err := r.DB.First(&item, "id = ?", itemId).Error; err != nil {
+		return nil, err
+	}
+
+	item.Price = price
+	if err := r.DB.Save(&item).Error; err != nil {
+		return nil, err
+	}
+	return &item, nil
 }
 
 func (r *RestaurantRepository) UpdateStatus(id string, isOpen bool) (*models.Restaurant, error) {

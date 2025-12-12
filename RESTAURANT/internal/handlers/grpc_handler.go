@@ -27,13 +27,12 @@ func authorizeAdmin(ctx context.Context) error {
 	if !ok {
 		return status.Error(codes.Unauthenticated, "No metadata found")
 	}
-	// Gateway sends "Grpc-Metadata-User-Role"
+
 	roles := md.Get("user-role")
 	if len(roles) == 0 {
 		return status.Error(codes.Unauthenticated, "No role found")
 	}
 
-	// IMPORTANT: Check the exact string your Auth Service generates
 	if roles[0] != "ADMIN" {
 		return status.Error(codes.PermissionDenied, "Admin access required")
 	}
@@ -45,33 +44,30 @@ func authorizeRestaurantWorker(ctx context.Context) error {
 	if !ok {
 		return status.Error(codes.Unauthenticated, "No metadata found")
 	}
-	// Gateway sends "Grpc-Metadata-User-Role"
+
 	roles := md.Get("user-role")
 	if len(roles) == 0 {
 		return status.Error(codes.Unauthenticated, "No role found")
 	}
 
-	// IMPORTANT: Check the exact string your Auth Service generates
 	if roles[0] != "RESTAURANT_WORKER" {
 		return status.Error(codes.PermissionDenied, "Restaurant worker access required")
 	}
 	return nil
 }
 
-// 1. Create (Admin Only)
 func (h *RestaurantHandler) CreateRestaurant(ctx context.Context, req *pb.CreateRestaurantRequest) (*pb.RestaurantResponse, error) {
 	if err := authorizeAdmin(ctx); err != nil {
 		return nil, err
 	}
 
-	res, err := h.service.CreateRestaurant(req.Name, req.Category)
+	res, err := h.service.CreateRestaurant(req.Name, req.Category, req.Address, req.Latitude, req.Longitude)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to create restaurant")
 	}
 	return mapToProto(res), nil
 }
 
-// 2. Add Item (Admin Only)
 func (h *RestaurantHandler) AddMenuItem(ctx context.Context, req *pb.AddMenuItemRequest) (*pb.MenuItemResponse, error) {
 	if err := authorizeRestaurantWorker(ctx); err != nil {
 		return nil, err
@@ -88,7 +84,35 @@ func (h *RestaurantHandler) AddMenuItem(ctx context.Context, req *pb.AddMenuItem
 	}, nil
 }
 
-// 3. Update Status (Admin Only)
+func (h *RestaurantHandler) DeleteMenuItem(ctx context.Context, req *pb.DeleteMenuItemRequest) (*pb.MenuItemResponse, error) {
+	if err := authorizeRestaurantWorker(ctx); err != nil {
+		return nil, err
+	}
+
+	err := h.service.SoftDeleteMenuItem(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to delete item")
+	}
+	return &pb.MenuItemResponse{Id: req.Id}, nil
+}
+
+func (h *RestaurantHandler) UpdateItemPrice(ctx context.Context, req *pb.UpdateItemPriceRequest) (*pb.MenuItemResponse, error) {
+	if err := authorizeRestaurantWorker(ctx); err != nil {
+		return nil, err
+	}
+
+	item, err := h.service.UpdateItemPrice(req.Id, req.Price)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to update price")
+	}
+
+	return &pb.MenuItemResponse{
+		Id:    item.Id.String(),
+		Name:  item.Name,
+		Price: item.Price,
+	}, nil
+}
+
 func (h *RestaurantHandler) UpdateStatus(ctx context.Context, req *pb.UpdateStatusRequest) (*pb.RestaurantResponse, error) {
 	if err := authorizeRestaurantWorker(ctx); err != nil {
 		return nil, err
@@ -136,10 +160,13 @@ func mapToProto(r *models.Restaurant) *pb.RestaurantResponse {
 	}
 
 	return &pb.RestaurantResponse{
-		Id:       r.Id.String(),
-		Name:     r.Name,
-		Category: r.Category,
-		IsOpen:   r.IsOpen,
+		Id:        r.Id.String(),
+		Name:      r.Name,
+		Category:  r.Category,
+		IsOpen:    r.IsOpen,
+		Address:   r.Address,
+		Latitude:  r.Latitude,
+		Longitude: r.Longitude,
 		Menu: &pb.Menu{
 			Id:    r.Menu.Id.String(),
 			Items: protoItems,

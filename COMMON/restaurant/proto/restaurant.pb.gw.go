@@ -152,6 +152,90 @@ func local_request_RestaurantService_AddMenuItem_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
+func request_RestaurantService_DeleteMenuItem_0(ctx context.Context, marshaler runtime.Marshaler, client RestaurantServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq DeleteMenuItemRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := client.DeleteMenuItem(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_RestaurantService_DeleteMenuItem_0(ctx context.Context, marshaler runtime.Marshaler, server RestaurantServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq DeleteMenuItemRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := server.DeleteMenuItem(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_RestaurantService_UpdateItemPrice_0(ctx context.Context, marshaler runtime.Marshaler, client RestaurantServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq UpdateItemPriceRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := client.UpdateItemPrice(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_RestaurantService_UpdateItemPrice_0(ctx context.Context, marshaler runtime.Marshaler, server RestaurantServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq UpdateItemPriceRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := server.UpdateItemPrice(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_RestaurantService_GetAllRestaurants_0(ctx context.Context, marshaler runtime.Marshaler, client RestaurantServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetAllRestaurantsRequest
@@ -277,6 +361,46 @@ func RegisterRestaurantServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			return
 		}
 		forward_RestaurantService_AddMenuItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodDelete, pattern_RestaurantService_DeleteMenuItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/restaurant.RestaurantService/DeleteMenuItem", runtime.WithHTTPPathPattern("/restaurant/menu/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_RestaurantService_DeleteMenuItem_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RestaurantService_DeleteMenuItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_RestaurantService_UpdateItemPrice_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/restaurant.RestaurantService/UpdateItemPrice", runtime.WithHTTPPathPattern("/restaurant/menu/{id}/price"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_RestaurantService_UpdateItemPrice_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RestaurantService_UpdateItemPrice_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodGet, pattern_RestaurantService_GetAllRestaurants_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -409,6 +533,40 @@ func RegisterRestaurantServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 		forward_RestaurantService_AddMenuItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodDelete, pattern_RestaurantService_DeleteMenuItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/restaurant.RestaurantService/DeleteMenuItem", runtime.WithHTTPPathPattern("/restaurant/menu/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_RestaurantService_DeleteMenuItem_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RestaurantService_DeleteMenuItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_RestaurantService_UpdateItemPrice_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/restaurant.RestaurantService/UpdateItemPrice", runtime.WithHTTPPathPattern("/restaurant/menu/{id}/price"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_RestaurantService_UpdateItemPrice_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RestaurantService_UpdateItemPrice_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_RestaurantService_GetAllRestaurants_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -450,6 +608,8 @@ var (
 	pattern_RestaurantService_CreateRestaurant_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"restaurant"}, ""))
 	pattern_RestaurantService_UpdateStatus_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1, 2, 2}, []string{"restaurant", "id", "status"}, ""))
 	pattern_RestaurantService_AddMenuItem_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1, 2, 2}, []string{"restaurant", "restaurantId", "menu"}, ""))
+	pattern_RestaurantService_DeleteMenuItem_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"restaurant", "menu", "id"}, ""))
+	pattern_RestaurantService_UpdateItemPrice_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"restaurant", "menu", "id", "price"}, ""))
 	pattern_RestaurantService_GetAllRestaurants_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"restaurant"}, ""))
 	pattern_RestaurantService_GetRestaurant_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"restaurant", "id"}, ""))
 )
@@ -458,6 +618,8 @@ var (
 	forward_RestaurantService_CreateRestaurant_0  = runtime.ForwardResponseMessage
 	forward_RestaurantService_UpdateStatus_0      = runtime.ForwardResponseMessage
 	forward_RestaurantService_AddMenuItem_0       = runtime.ForwardResponseMessage
+	forward_RestaurantService_DeleteMenuItem_0    = runtime.ForwardResponseMessage
+	forward_RestaurantService_UpdateItemPrice_0   = runtime.ForwardResponseMessage
 	forward_RestaurantService_GetAllRestaurants_0 = runtime.ForwardResponseMessage
 	forward_RestaurantService_GetRestaurant_0     = runtime.ForwardResponseMessage
 )

@@ -1,0 +1,67 @@
+.container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    position: relative;
+    /* For dropdown positioning */
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+.readonly-field {
+    background-color: #f0f0f0;
+    color: #555;
+    cursor: not-allowed;
+}
+
+/* Dropdown Styles */
+.suggestions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.suggestions-list li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.suggestions-list li:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #ccc;
+}

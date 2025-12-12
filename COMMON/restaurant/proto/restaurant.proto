@@ -31,6 +31,20 @@ service RestaurantService {
     };
   }
 
+  rpc DeleteMenuItem (DeleteMenuItemRequest) returns (MenuItemResponse) {
+    option (google.api.http) = {
+      delete: "/restaurant/menu/{id}"
+    };
+  }
+
+  // 7. Update Price
+  rpc UpdateItemPrice (UpdateItemPriceRequest) returns (MenuItemResponse) {
+    option (google.api.http) = {
+      put: "/restaurant/menu/{id}/price"
+      body: "*"
+    };
+  }
+
   // 4. Get All Restaurants (Public)
   rpc GetAllRestaurants (GetAllRestaurantsRequest) returns (GetAllRestaurantsResponse) {
     option (google.api.http) = {
@@ -74,11 +88,17 @@ message RestaurantResponse {
   string category = 3;
   bool isOpen = 4;
   Menu menu = 5;
+  string address = 6;
+  double latitude = 7;
+  double longitude = 8;
 }
 
 message CreateRestaurantRequest {
   string name = 1;
   string category = 2;
+  string address = 6;
+  double latitude = 7;
+  double longitude = 8;
 }
 
 message UpdateStatusRequest {
@@ -90,6 +110,15 @@ message AddMenuItemRequest {
   string restaurantId = 1;
   string name = 2;
   double price = 3;
+}
+
+message DeleteMenuItemRequest {
+  string id = 1;
+}
+
+message UpdateItemPriceRequest {
+  string id = 1;
+  double price = 2;
 }
 
 message GetAllRestaurantsRequest {

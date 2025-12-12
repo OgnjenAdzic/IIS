@@ -1,0 +1,25 @@
+<div class="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-indigo-500">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">Add New Menu Item</h3>
+
+    <div class="flex flex-col md:flex-row gap-4 items-end">
+        <!-- Name Input -->
+        <div class="flex-1 w-full">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+            <input type="text" [(ngModel)]="name" placeholder="e.g. Cheese Burger"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 border">
+        </div>
+
+        <!-- Price Input -->
+        <div class="w-full md:w-48">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Price (RSD)</label>
+            <input type="number" [(ngModel)]="price" placeholder="0.00" min="0"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 border">
+        </div>
+
+        <!-- Submit Button -->
+        <button (click)="onSubmit()" [disabled]="!name || !price || price <= 0"
+            class="w-full md:w-auto px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            + Add Item
+        </button>
+    </div>
+</div>

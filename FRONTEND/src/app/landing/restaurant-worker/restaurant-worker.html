@@ -1,1 +1,114 @@
-<p>restaurant-worker works!</p>
+<div class="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">My Restaurants</h1>
+            <p class="text-gray-600 mt-1">Manage your restaurant operations</p>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="flex justify-center items-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="max-w-2xl mx-auto">
+            <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+                <p class="font-medium">{{ error }}</p>
+            </div>
+        </div>
+
+        <!-- Restaurants Grid -->
+        <div *ngIf="!loading && !error && restaurants.length > 0">
+            <!-- Stats -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <p class="text-gray-700">
+                    Total Restaurants: <span class="font-bold text-xl">{{ restaurants.length }}</span>
+                </p>
+            </div>
+
+            <!-- Restaurant Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div *ngFor="let restaurant of restaurants"
+                    class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+
+                    <!-- Card Header -->
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <h2 class="text-xl font-bold text-gray-900">{{ restaurant.name }}</h2>
+                            <span [ngClass]="{
+                'bg-green-100 text-green-800': restaurant.isOpen,
+                'bg-red-100 text-red-800': !restaurant.isOpen
+              }" class="px-3 py-1 rounded-full text-sm font-semibold">
+                                {{ restaurant.isOpen ? 'Open' : 'Closed' }}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-sm">{{ restaurant.category }}</p>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-6 space-y-4">
+                        <!-- Address -->
+                        <div class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-500 font-medium">Address</p>
+                                <p class="text-gray-900">{{ restaurant.address }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Coordinates -->
+                        <div class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-500 font-medium">Location</p>
+                                <p class="text-gray-900 text-sm">{{ restaurant.latitude }}, {{ restaurant.longitude }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-lg">
+                            <button [routerLink]="['/manage-restaurant', restaurant.id]"
+                                class="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Manage
+                            </button>
+                            <button [routerLink]="['/manage-restaurant', restaurant.id]"
+                                class="flex-1 bg-white hover:bg-gray-100 text-gray-900 font-semibold py-2 px-4 rounded-lg border-2 border-gray-900 transition-colors duration-200 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Menu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading && !error && restaurants.length === 0"
+                class="max-w-2xl mx-auto bg-white rounded-lg shadow p-12 text-center">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">No Restaurants Found</h2>
+                <p class="text-gray-600">You don't have any restaurants assigned yet.</p>
+            </div>
+        </div>
+    </div>

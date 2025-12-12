@@ -13,11 +13,13 @@ func NewRestaurantService(repo *repository.RestaurantRepository) *RestaurantServ
 	return &RestaurantService{repo: repo}
 }
 
-func (s *RestaurantService) CreateRestaurant(name, category string) (*models.Restaurant, error) {
+func (s *RestaurantService) CreateRestaurant(name, category, address string, lat, lon float64) (*models.Restaurant, error) {
 	restaurant := &models.Restaurant{
 		Name:     name,
 		Category: category,
 		IsOpen:   true,
+		Address:  address,
+		Latitude: lat,
 	}
 	err := s.repo.Create(restaurant)
 	return restaurant, err
@@ -29,6 +31,14 @@ func (s *RestaurantService) GetAll() ([]models.Restaurant, error) {
 
 func (s *RestaurantService) GetById(id string) (*models.Restaurant, error) {
 	return s.repo.GetById(id)
+}
+
+func (s *RestaurantService) SoftDeleteMenuItem(id string) error {
+	return s.repo.SoftDeleteMenuItem(id)
+}
+
+func (s *RestaurantService) UpdateItemPrice(id string, price float64) (*models.MenuItem, error) {
+	return s.repo.UpdateItemPrice(id, price)
 }
 
 func (s *RestaurantService) UpdateStatus(id string, isOpen bool) (*models.Restaurant, error) {

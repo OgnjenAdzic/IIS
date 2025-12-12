@@ -1,0 +1,32 @@
+<div class="max-w-4xl mx-auto py-8 px-4">
+
+    <!-- 1. LOADING STATE (Show this when restaurant is null) -->
+    @if (!restaurant) {
+    <div class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+    </div>
+    }
+
+    <!-- 2. DATA LOADED (Only render this when restaurant exists) -->
+    @if (restaurant) {
+    <!-- Header -->
+    <div class="mb-8 border-b pb-4">
+        <h1 class="text-3xl font-bold text-gray-900">Manage: {{ restaurant.name }}</h1>
+        <p class="text-gray-600">{{ restaurant.category }} | {{ restaurant.address }}</p>
+    </div>
+
+    <!-- Status Toggle -->
+    <!-- This was causing the null error because it was likely outside the if block before -->
+    <app-status-toggle [isOpen]="restaurant.isOpen" (statusChanged)="handleStatusChange($event)">
+    </app-status-toggle>
+
+    <!-- Add Item -->
+    <app-add-item-form (itemAdded)="handleItemAdded($event)">
+    </app-add-item-form>
+
+    <!-- Menu List -->
+    <app-menu-list [items]="restaurant.menu?.items || []" (priceUpdated)="handlePriceUpdate($event)"
+        (itemDeleted)="handleItemDelete($event)">
+    </app-menu-list>
+    }
+</div>

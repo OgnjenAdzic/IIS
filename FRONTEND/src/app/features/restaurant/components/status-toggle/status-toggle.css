@@ -1,0 +1,4 @@
+/* Tailwind handles almost everything, but we can add smooth transitions */
+:host {
+    display: block;
+}
