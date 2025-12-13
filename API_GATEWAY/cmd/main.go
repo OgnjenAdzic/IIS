@@ -12,6 +12,7 @@ import (
 	// Import definitions from COMMON
 	pbAuth "COMMON/auth/proto"
 	pbRestaurant "COMMON/restaurant/proto"
+	pbStakeholders "COMMON/stakeholders/proto"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -52,6 +53,7 @@ func main() {
 	}
 	fmt.Println("Auth Service Registered at " + authAddr)
 
+	// --- RESTAURANT SERVICE ---
 	restAddr := os.Getenv("RESTAURANT_SERVICE_ADDRESS")
 	if restAddr == "" {
 		restAddr = "restaurant-service:8083"
@@ -61,6 +63,17 @@ func main() {
 		log.Fatalf("Failed to register Restaurant: %v", err)
 	}
 	fmt.Println("Restaurant Service Registered at " + restAddr)
+
+	// --- STAKEHOLDERS SERVICE ---
+	stakeAddr := os.Getenv("STAKEHOLDERS_SERVICE_ADDRESS")
+	if stakeAddr == "" {
+		stakeAddr = "stakeholder-service:8084"
+	}
+	err = pbStakeholders.RegisterStakeholdersServiceHandlerFromEndpoint(ctx, gwmux, stakeAddr, opts)
+	if err != nil {
+		log.Fatalf("Failed to register stakeholder: %v", err)
+	}
+	fmt.Println("stakeholder Service Registered at " + stakeAddr)
 
 	rootMux := http.NewServeMux()
 

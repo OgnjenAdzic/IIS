@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../service/auth';
 import { UserRole } from '../model/auth';
+import { Stakeholders } from '../../features/stakeholders/service/stakeholders';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +16,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  stakeholdersService = inject(Stakeholders);
 
   errorMessage = '';
 
@@ -31,7 +33,7 @@ export class LoginComponent {
         .subscribe({
           next: () => {
             const user = this.authService.currentUser();
-            this.redirectBasedOnRole(user?.role);
+            this.checkProfileAndRedirect();
             console.log("uspesno");
             console.log(user);
             console.log(user?.role);
@@ -42,6 +44,24 @@ export class LoginComponent {
           }
         });
     }
+  }
+
+  private checkProfileAndRedirect() {
+    const user = this.authService.currentUser();
+
+    if (user?.role === UserRole.ADMIN || user?.role === UserRole.RESTAURANT_WORKER) {
+      this.redirectBasedOnRole(user?.role);
+      return;
+    }
+
+    // Check Stakeholders Service
+    this.stakeholdersService.hasProfile().subscribe(exists => {
+      if (exists) {
+        this.redirectBasedOnRole(user?.role);
+      } else {
+        this.router.navigate(['/complete-profile']);
+      }
+    });
   }
 
   private redirectBasedOnRole(role?: UserRole) {

@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package stakeholders;
+
+option go_package = "/COMMON/stakeholders/proto";
+
+import "google/api/annotations.proto";
+
+service StakeholdersService {
+  
+  // --- CUSTOMER ENDPOINTS ---
+  rpc CreateCustomer (CreateCustomerRequest) returns (CustomerResponse) {
+    option (google.api.http) = {
+      post: "/stakeholders/customer"
+      body: "*"
+    };
+  }
+
+  rpc GetCustomer (GetRequest) returns (CustomerResponse) {
+    option (google.api.http) = {
+      get: "/stakeholders/customer/{userId}"
+    };
+  }
+
+  // --- DELIVERY PERSON ENDPOINTS ---
+  rpc CreateDeliveryPerson (CreateDeliveryPersonRequest) returns (DeliveryPersonResponse) {
+    option (google.api.http) = {
+      post: "/stakeholders/delivery-person"
+      body: "*"
+    };
+  }
+
+  rpc GetDeliveryPerson (GetRequest) returns (DeliveryPersonResponse) {
+    option (google.api.http) = {
+      get: "/stakeholders/delivery-person/{userId}"
+    };
+  }
+
+  rpc UpdateWorkingStatus (UpdateWorkStatusRequest) returns (DeliveryPersonResponse) {
+    option (google.api.http) = {
+      put: "/stakeholders/delivery-person/status"
+      body: "*"
+    };
+  }
+}
+
+// --- ENUMS ---
+enum VehicleType {
+  NO_VEHICLE = 0;
+  CAR = 1;
+  BIKE = 2;
+  SCOOTER = 3;
+}
+
+// --- SHARED ---
+message GetRequest {
+  string userId = 1;
+}
+
+// --- CUSTOMER MESSAGES ---
+message CreateCustomerRequest {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  // Address info (Same as Restaurant)
+  string address = 4;
+  double latitude = 5;
+  double longitude = 6;
+}
+
+message CustomerResponse {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string address = 4;
+  double latitude = 5;
+  double longitude = 6;
+}
+
+// --- DELIVERY PERSON MESSAGES ---
+message CreateDeliveryPersonRequest {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  VehicleType vehicle = 4;
+}
+
+message UpdateWorkStatusRequest {
+  string userId = 1;
+  bool isWorking = 2;
+}
+
+message DeliveryPersonResponse {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  VehicleType vehicle = 4;
+  bool isWorking = 5;
+  int32 deliveryCount = 6;
+}

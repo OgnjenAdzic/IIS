@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RestaurantService } from '../../services/restaurant';
-import { GeocodingService } from '../../services/geocoding.service';
+import { GeocodingService } from '../../../../services/geocoding.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';

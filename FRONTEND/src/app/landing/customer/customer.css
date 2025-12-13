@@ -1,0 +1,12 @@
+/* Smooth transition for the toggle dot */
+.dot {
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Optional: Clamp text if address is super long */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

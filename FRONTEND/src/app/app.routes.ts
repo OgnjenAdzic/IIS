@@ -9,6 +9,7 @@ import { UserRole } from './auth/model/auth';
 import { Restaurant } from './features/restaurant/pages/create-restaurant/restaurant';
 import { RestaurantWorker } from './landing/restaurant-worker/restaurant-worker';
 import { ManageRestaurant } from './features/restaurant/pages/manage-restaurant/manage-restaurant';
+import { CompleteProfile } from './features/stakeholders/pages/complete-profile/complete-profile';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -48,6 +49,14 @@ export const routes: Routes = [
         component: ManageRestaurant,
         canActivate: [roleGuard],
         data: { role: UserRole.RESTAURANT_WORKER }
+    },
+    {
+        path: 'complete-profile',
+        component: CompleteProfile,
+        canActivate: [roleGuard],
+        data: {
+            roles: [UserRole.CUSTOMER, UserRole.DELIVERY_PERSON]
+        }
     }
 
 ];

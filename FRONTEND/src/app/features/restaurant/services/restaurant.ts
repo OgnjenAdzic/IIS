@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GeocodingService } from './geocoding.service';
+import { GeocodingService } from '../../../services/geocoding.service';
 import { CreateRestaurantRequest } from '../models/restaurant';
 import { environment } from '../../../../environments/enviorment';
 import { GetAllRestaurantsResponse, Restaurant } from '../models/restaurant';

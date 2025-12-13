@@ -11,9 +11,11 @@ services:
       - AUTH_SERVICE_ADDRESS=auth-service:8082
       - JWT_SECRET=my_super_secure_delivery_app_secret_key_2025
       - RESTAURANT_SERVICE_ADDRESS=restaurant-service:8083
+      - STAKEHOLDERS_SERVICE_ADDRESS=stakeholders-service:8084
     depends_on:
       - auth
       - restaurant
+      - stakeholders
   auth:
     build:
       context: .
@@ -89,6 +91,43 @@ services:
       timeout: 5s
       retries: 5
 
+  stakeholders:
+    build:
+      context: .
+      dockerfile: STAKEHOLDERS/Dockerfile
+    container_name: stakeholders-service
+    ports:
+      - "8084:8084"
+    environment:
+      DB_HOST: stakeholders-db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: stakeholders_db
+      DB_PORT: 5432
+    depends_on:
+      stakeholders-db:
+        condition: service_healthy
+  stakeholders-db:
+    image: postgres:16
+    container_name: stakeholders-db
+    restart: always
+    environment:
+      POSTGRES_DB: stakeholders_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    volumes:
+      - stakeholders_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   auth_data:
   restaurant_data:
+  stakeholders_data:
+
+

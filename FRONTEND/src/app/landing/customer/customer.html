@@ -1,1 +1,112 @@
-<p>customer works!</p>
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+
+        <!-- HEADER & FILTERS -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+
+                <!-- Title -->
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Hungry?</h1>
+                    <p class="text-gray-500">Order from the best restaurants near you</p>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-64">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input [ngModel]="searchTerm()" (ngModelChange)="updateSearch($event)" type="text"
+                            placeholder="Search name or category..."
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out">
+                    </div>
+
+                    <!-- Open Only Toggle -->
+                    <label
+                        class="flex items-center cursor-pointer space-x-3 p-2 rounded-md hover:bg-gray-50 transition">
+                        <div class="relative">
+                            <input type="checkbox" [ngModel]="onlyOpen()" (ngModelChange)="toggleOpen($event)"
+                                class="sr-only">
+                            <div class="block bg-gray-200 w-10 h-6 rounded-full transition-colors"
+                                [class.bg-indigo-600]="onlyOpen()"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out"
+                                [class.transform]="onlyOpen()" [class.translate-x-4]="onlyOpen()"></div>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Open Only</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESTAURANT GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            @for (r of filteredRestaurants(); track r.id) {
+            <div
+                class="bg-white rounded-lg shadow hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col h-full border border-transparent hover:border-indigo-100 group">
+
+                <!-- Card Image Area (Placeholder) -->
+                <div class="h-40 bg-gray-100 flex items-center justify-center relative">
+                    <svg class="h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+
+                    <!-- Status Badge (Absolute) -->
+                    <span
+                        class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+                        [ngClass]="r.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                        {{ r.isOpen ? 'Open' : 'Closed' }}
+                    </span>
+                </div>
+
+                <!-- Content -->
+                <div class="p-6 flex-1 flex flex-col">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                {{ r.name }}
+                            </h3>
+                            <p class="text-sm text-indigo-500 font-medium uppercase tracking-wider">{{ r.category }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex items-start text-gray-500 text-sm mb-6">
+                        <svg class="h-5 w-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="line-clamp-2">{{ r.address }}</span>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="mt-auto pt-4 border-t border-gray-100">
+                        <!-- TODO: Add Link to Restaurant Menu -->
+                        <button [disabled]="!r.isOpen" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors
+                                       bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">
+                            {{ r.isOpen ? 'View Menu' : 'Currently Unavailable' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            } @empty {
+            <div class="col-span-full py-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No restaurants found</h3>
+                <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter.</p>
+            </div>
+            }
+        </div>
+    </div>
+</div>
