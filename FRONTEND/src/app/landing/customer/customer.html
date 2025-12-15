@@ -90,8 +90,8 @@
                     <!-- Action -->
                     <div class="mt-auto pt-4 border-t border-gray-100">
                         <!-- TODO: Add Link to Restaurant Menu -->
-                        <button [disabled]="!r.isOpen" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors
-                                       bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">
+                        <button [routerLink]="['/customer/restaurant', r.id]" [disabled]="!r.isOpen" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors
+               bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">
                             {{ r.isOpen ? 'View Menu' : 'Currently Unavailable' }}
                         </button>
                     </div>

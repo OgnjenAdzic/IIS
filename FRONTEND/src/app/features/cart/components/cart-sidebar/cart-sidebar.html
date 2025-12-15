@@ -1,0 +1,65 @@
+<!-- Overlay (Click to close) -->
+<div *ngIf="isOpen()" (click)="close()" class="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity">
+</div>
+
+<!-- Drawer -->
+<div class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col"
+    [class.translate-x-0]="isOpen()" [class.translate-x-full]="!isOpen()">
+
+    <!-- Header -->
+    <div class="p-6 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-xl font-bold text-gray-900">Your Cart</h2>
+        <button (click)="close()" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Items List -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        @for (item of items(); track item.id) {
+        <div class="flex justify-between items-center">
+            <div>
+                <h4 class="font-medium text-gray-900">{{ item.name }}</h4>
+                <p class="text-gray-500 text-sm">{{ item.price }} RSD</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Qty Controls -->
+                <div class="flex items-center border rounded-md">
+                    <button (click)="cartService.updateQuantity(item.id, -1)"
+                        class="px-2 py-1 hover:bg-gray-100 text-gray-600">-</button>
+                    <span class="px-2 text-sm font-medium">{{ item.quantity }}</span>
+                    <button (click)="cartService.updateQuantity(item.id, 1)"
+                        class="px-2 py-1 hover:bg-gray-100 text-gray-600">+</button>
+                </div>
+                <!-- Remove -->
+                <button (click)="cartService.removeFromCart(item.id)" class="text-red-500 hover:text-red-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        } @empty {
+        <div class="text-center py-10 text-gray-500">
+            <p>Your cart is empty.</p>
+            <button (click)="close()" class="mt-4 text-indigo-600 font-medium">Start Ordering</button>
+        </div>
+        }
+    </div>
+
+    <!-- Footer / Checkout -->
+    <div class="p-6 border-t border-gray-200 bg-gray-50">
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-gray-600 font-medium">Total</span>
+            <span class="text-2xl font-bold text-gray-900">{{ total() }} RSD</span>
+        </div>
+        <button (click)="checkout()" [disabled]="items().length === 0"
+            class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+            Proceed to Checkout
+        </button>
+    </div>
+</div>

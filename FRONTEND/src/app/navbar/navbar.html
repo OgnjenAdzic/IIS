@@ -1,0 +1,56 @@
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+
+            <!-- LEFT: Logo -->
+            <div class="flex items-center">
+                <a [routerLink]="getDashboardRoute()" class="text-2xl font-bold text-indigo-600 cursor-pointer">
+                    DeliveryApp
+                </a>
+            </div>
+
+            <!-- RIGHT: Actions -->
+            <div class="flex items-center gap-6" *ngIf="user() as u">
+
+                <!-- CUSTOMER ONLY: Cart -->
+                <button *ngIf="u.role === Roles.CUSTOMER" (click)="toggleCart()"
+                    class="relative p-2 text-gray-500 hover:text-indigo-600 transition-colors">
+
+                    <!-- Shopping Cart Icon -->
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+
+                    <!-- Badge -->
+                    <span *ngIf="cartCount() > 0"
+                        class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                        {{ cartCount() }}
+                    </span>
+                </button>
+
+                <!-- Profile Dropdown (Simplified) -->
+                <div class="flex items-center gap-3 border-l pl-6 border-gray-200">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-medium text-gray-900">{{ u.username }}</p>
+                        <p class="text-xs text-gray-500">{{ u.role }}</p>
+                    </div>
+
+                    <!-- Profile Icon -->
+                    <div
+                        class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-300 cursor-pointer transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+
+                    <button (click)="logout()" class="text-sm text-red-500 hover:text-red-700 font-medium">
+                        Logout
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</nav>

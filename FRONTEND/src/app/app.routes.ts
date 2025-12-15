@@ -10,6 +10,7 @@ import { Restaurant } from './features/restaurant/pages/create-restaurant/restau
 import { RestaurantWorker } from './landing/restaurant-worker/restaurant-worker';
 import { ManageRestaurant } from './features/restaurant/pages/manage-restaurant/manage-restaurant';
 import { CompleteProfile } from './features/stakeholders/pages/complete-profile/complete-profile';
+import { RestaurantMenu } from './features/restaurant/pages/restaurant-menu/restaurant-menu';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -57,6 +58,12 @@ export const routes: Routes = [
         data: {
             roles: [UserRole.CUSTOMER, UserRole.DELIVERY_PERSON]
         }
+    },
+    {
+        path: 'customer/restaurant/:id',
+        component: RestaurantMenu,
+        canActivate: [roleGuard],
+        data: { role: UserRole.CUSTOMER }
     }
 
 ];
