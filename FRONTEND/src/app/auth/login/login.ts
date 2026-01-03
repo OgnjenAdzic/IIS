@@ -49,7 +49,7 @@ export class LoginComponent {
   private checkProfileAndRedirect() {
     const user = this.authService.currentUser();
 
-    if (user?.role === UserRole.ADMIN || user?.role === UserRole.RESTAURANT_WORKER) {
+    if (user?.role === UserRole.ADMIN || user?.role === UserRole.DELIVERY_PERSON) {
       this.redirectBasedOnRole(user?.role);
       return;
     }

@@ -16,6 +16,22 @@ export interface CreateDeliveryPersonRequest {
     vehicle: VehicleType;
 }
 
+export interface CreateRestaurantWorkerRequest {
+    userId?: string;
+    firstName: string;
+    lastName: string;
+}
+
+export interface RestaurantWorkerPersonResponse {
+    userId: string;
+    firstName: string;
+    lastName: string;
+}
+
+export interface AllRestaurantWorkersResponse {
+    workers: RestaurantWorkerPersonResponse[];
+}
+
 export interface CustomerProfile {
     userId: string;
     firstName: string;

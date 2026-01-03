@@ -63,3 +63,26 @@ func (s *StakeholdersService) GetDeliveryPerson(userId string) (*models.Delivery
 func (s *StakeholdersService) UpdateWorkingStatus(userId string, isWorking bool) (*models.DeliveryPerson, error) {
 	return s.repo.UpdateWorkingStatus(userId, isWorking)
 }
+
+func (s *StakeholdersService) CreateWorker(userIdStr, fname, lname string) (*models.RestaurantWorker, error) {
+	uid, err := uuid.Parse(userIdStr)
+	if err != nil {
+		return nil, err
+	}
+
+	w := &models.RestaurantWorker{
+		UserId:    uid,
+		FirstName: fname,
+		LastName:  lname,
+	}
+	err = s.repo.CreateWorker(w)
+	return w, err
+}
+
+func (s *StakeholdersService) GetAllWorkers() ([]models.RestaurantWorker, error) {
+	return s.repo.GetAllWorkers()
+}
+
+func (s *StakeholdersService) GetWorker(userId string) (*models.RestaurantWorker, error) {
+	return s.repo.GetWorker(userId)
+}

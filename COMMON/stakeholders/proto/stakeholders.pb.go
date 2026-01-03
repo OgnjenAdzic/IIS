@@ -495,6 +495,206 @@ func (x *DeliveryPersonResponse) GetDeliveryCount() int32 {
 	return 0
 }
 
+type CreateWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
+	FirstName     string                 `protobuf:"bytes,2,opt,name=firstName,proto3" json:"firstName,omitempty"`
+	LastName      string                 `protobuf:"bytes,3,opt,name=lastName,proto3" json:"lastName,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateWorkerRequest) Reset() {
+	*x = CreateWorkerRequest{}
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateWorkerRequest) ProtoMessage() {}
+
+func (x *CreateWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateWorkerRequest.ProtoReflect.Descriptor instead.
+func (*CreateWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_stakeholders_proto_stakeholders_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateWorkerRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreateWorkerRequest) GetFirstName() string {
+	if x != nil {
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *CreateWorkerRequest) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+type WorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
+	FirstName     string                 `protobuf:"bytes,2,opt,name=firstName,proto3" json:"firstName,omitempty"`
+	LastName      string                 `protobuf:"bytes,3,opt,name=lastName,proto3" json:"lastName,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WorkerResponse) Reset() {
+	*x = WorkerResponse{}
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkerResponse) ProtoMessage() {}
+
+func (x *WorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkerResponse.ProtoReflect.Descriptor instead.
+func (*WorkerResponse) Descriptor() ([]byte, []int) {
+	return file_stakeholders_proto_stakeholders_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *WorkerResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *WorkerResponse) GetFirstName() string {
+	if x != nil {
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *WorkerResponse) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+type GetAllWorkersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllWorkersRequest) Reset() {
+	*x = GetAllWorkersRequest{}
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllWorkersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllWorkersRequest) ProtoMessage() {}
+
+func (x *GetAllWorkersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllWorkersRequest.ProtoReflect.Descriptor instead.
+func (*GetAllWorkersRequest) Descriptor() ([]byte, []int) {
+	return file_stakeholders_proto_stakeholders_proto_rawDescGZIP(), []int{8}
+}
+
+type GetAllWorkersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Workers       []*WorkerResponse      `protobuf:"bytes,1,rep,name=workers,proto3" json:"workers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllWorkersResponse) Reset() {
+	*x = GetAllWorkersResponse{}
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllWorkersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllWorkersResponse) ProtoMessage() {}
+
+func (x *GetAllWorkersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_proto_stakeholders_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllWorkersResponse.ProtoReflect.Descriptor instead.
+func (*GetAllWorkersResponse) Descriptor() ([]byte, []int) {
+	return file_stakeholders_proto_stakeholders_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetAllWorkersResponse) GetWorkers() []*WorkerResponse {
+	if x != nil {
+		return x.Workers
+	}
+	return nil
+}
+
 var File_stakeholders_proto_stakeholders_proto protoreflect.FileDescriptor
 
 const file_stakeholders_proto_stakeholders_proto_rawDesc = "" +
@@ -531,19 +731,33 @@ const file_stakeholders_proto_stakeholders_proto_rawDesc = "" +
 	"\blastName\x18\x03 \x01(\tR\blastName\x123\n" +
 	"\avehicle\x18\x04 \x01(\x0e2\x19.stakeholders.VehicleTypeR\avehicle\x12\x1c\n" +
 	"\tisWorking\x18\x05 \x01(\bR\tisWorking\x12$\n" +
-	"\rdeliveryCount\x18\x06 \x01(\x05R\rdeliveryCount*=\n" +
+	"\rdeliveryCount\x18\x06 \x01(\x05R\rdeliveryCount\"g\n" +
+	"\x13CreateWorkerRequest\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x1c\n" +
+	"\tfirstName\x18\x02 \x01(\tR\tfirstName\x12\x1a\n" +
+	"\blastName\x18\x03 \x01(\tR\blastName\"b\n" +
+	"\x0eWorkerResponse\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x1c\n" +
+	"\tfirstName\x18\x02 \x01(\tR\tfirstName\x12\x1a\n" +
+	"\blastName\x18\x03 \x01(\tR\blastName\"\x16\n" +
+	"\x14GetAllWorkersRequest\"O\n" +
+	"\x15GetAllWorkersResponse\x126\n" +
+	"\aworkers\x18\x01 \x03(\v2\x1c.stakeholders.WorkerResponseR\aworkers*=\n" +
 	"\vVehicleType\x12\x0e\n" +
 	"\n" +
 	"NO_VEHICLE\x10\x00\x12\a\n" +
 	"\x03CAR\x10\x01\x12\b\n" +
 	"\x04BIKE\x10\x02\x12\v\n" +
-	"\aSCOOTER\x10\x032\xb1\x05\n" +
+	"\aSCOOTER\x10\x032\xa7\b\n" +
 	"\x13StakeholdersService\x12x\n" +
 	"\x0eCreateCustomer\x12#.stakeholders.CreateCustomerRequest\x1a\x1e.stakeholders.CustomerResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/stakeholders/customer\x12p\n" +
 	"\vGetCustomer\x12\x18.stakeholders.GetRequest\x1a\x1e.stakeholders.CustomerResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/stakeholders/customer/{userId}\x12\x91\x01\n" +
 	"\x14CreateDeliveryPerson\x12).stakeholders.CreateDeliveryPersonRequest\x1a$.stakeholders.DeliveryPersonResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/stakeholders/delivery-person\x12\x83\x01\n" +
 	"\x11GetDeliveryPerson\x12\x18.stakeholders.GetRequest\x1a$.stakeholders.DeliveryPersonResponse\".\x82\xd3\xe4\x93\x02(\x12&/stakeholders/delivery-person/{userId}\x12\x93\x01\n" +
-	"\x13UpdateWorkingStatus\x12%.stakeholders.UpdateWorkStatusRequest\x1a$.stakeholders.DeliveryPersonResponse\"/\x82\xd3\xe4\x93\x02):\x01*\x1a$/stakeholders/delivery-person/statusB\x1cZ\x1a/COMMON/stakeholders/protob\x06proto3"
+	"\x13UpdateWorkingStatus\x12%.stakeholders.UpdateWorkStatusRequest\x1a$.stakeholders.DeliveryPersonResponse\"/\x82\xd3\xe4\x93\x02):\x01*\x1a$/stakeholders/delivery-person/status\x12z\n" +
+	"\x16CreateRestaurantWorker\x12!.stakeholders.CreateWorkerRequest\x1a\x1c.stakeholders.WorkerResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/stakeholders/worker\x12\x81\x01\n" +
+	"\x17GetAllRestaurantWorkers\x12\".stakeholders.GetAllWorkersRequest\x1a#.stakeholders.GetAllWorkersResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/stakeholders/workers\x12t\n" +
+	"\x13GetRestaurantWorker\x12\x18.stakeholders.GetRequest\x1a\x1c.stakeholders.WorkerResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/stakeholders/worker/{userId}B\x1cZ\x1a/COMMON/stakeholders/protob\x06proto3"
 
 var (
 	file_stakeholders_proto_stakeholders_proto_rawDescOnce sync.Once
@@ -558,7 +772,7 @@ func file_stakeholders_proto_stakeholders_proto_rawDescGZIP() []byte {
 }
 
 var file_stakeholders_proto_stakeholders_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_stakeholders_proto_stakeholders_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_stakeholders_proto_stakeholders_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_stakeholders_proto_stakeholders_proto_goTypes = []any{
 	(VehicleType)(0),                    // 0: stakeholders.VehicleType
 	(*GetRequest)(nil),                  // 1: stakeholders.GetRequest
@@ -567,25 +781,36 @@ var file_stakeholders_proto_stakeholders_proto_goTypes = []any{
 	(*CreateDeliveryPersonRequest)(nil), // 4: stakeholders.CreateDeliveryPersonRequest
 	(*UpdateWorkStatusRequest)(nil),     // 5: stakeholders.UpdateWorkStatusRequest
 	(*DeliveryPersonResponse)(nil),      // 6: stakeholders.DeliveryPersonResponse
+	(*CreateWorkerRequest)(nil),         // 7: stakeholders.CreateWorkerRequest
+	(*WorkerResponse)(nil),              // 8: stakeholders.WorkerResponse
+	(*GetAllWorkersRequest)(nil),        // 9: stakeholders.GetAllWorkersRequest
+	(*GetAllWorkersResponse)(nil),       // 10: stakeholders.GetAllWorkersResponse
 }
 var file_stakeholders_proto_stakeholders_proto_depIdxs = []int32{
-	0, // 0: stakeholders.CreateDeliveryPersonRequest.vehicle:type_name -> stakeholders.VehicleType
-	0, // 1: stakeholders.DeliveryPersonResponse.vehicle:type_name -> stakeholders.VehicleType
-	2, // 2: stakeholders.StakeholdersService.CreateCustomer:input_type -> stakeholders.CreateCustomerRequest
-	1, // 3: stakeholders.StakeholdersService.GetCustomer:input_type -> stakeholders.GetRequest
-	4, // 4: stakeholders.StakeholdersService.CreateDeliveryPerson:input_type -> stakeholders.CreateDeliveryPersonRequest
-	1, // 5: stakeholders.StakeholdersService.GetDeliveryPerson:input_type -> stakeholders.GetRequest
-	5, // 6: stakeholders.StakeholdersService.UpdateWorkingStatus:input_type -> stakeholders.UpdateWorkStatusRequest
-	3, // 7: stakeholders.StakeholdersService.CreateCustomer:output_type -> stakeholders.CustomerResponse
-	3, // 8: stakeholders.StakeholdersService.GetCustomer:output_type -> stakeholders.CustomerResponse
-	6, // 9: stakeholders.StakeholdersService.CreateDeliveryPerson:output_type -> stakeholders.DeliveryPersonResponse
-	6, // 10: stakeholders.StakeholdersService.GetDeliveryPerson:output_type -> stakeholders.DeliveryPersonResponse
-	6, // 11: stakeholders.StakeholdersService.UpdateWorkingStatus:output_type -> stakeholders.DeliveryPersonResponse
-	7, // [7:12] is the sub-list for method output_type
-	2, // [2:7] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0,  // 0: stakeholders.CreateDeliveryPersonRequest.vehicle:type_name -> stakeholders.VehicleType
+	0,  // 1: stakeholders.DeliveryPersonResponse.vehicle:type_name -> stakeholders.VehicleType
+	8,  // 2: stakeholders.GetAllWorkersResponse.workers:type_name -> stakeholders.WorkerResponse
+	2,  // 3: stakeholders.StakeholdersService.CreateCustomer:input_type -> stakeholders.CreateCustomerRequest
+	1,  // 4: stakeholders.StakeholdersService.GetCustomer:input_type -> stakeholders.GetRequest
+	4,  // 5: stakeholders.StakeholdersService.CreateDeliveryPerson:input_type -> stakeholders.CreateDeliveryPersonRequest
+	1,  // 6: stakeholders.StakeholdersService.GetDeliveryPerson:input_type -> stakeholders.GetRequest
+	5,  // 7: stakeholders.StakeholdersService.UpdateWorkingStatus:input_type -> stakeholders.UpdateWorkStatusRequest
+	7,  // 8: stakeholders.StakeholdersService.CreateRestaurantWorker:input_type -> stakeholders.CreateWorkerRequest
+	9,  // 9: stakeholders.StakeholdersService.GetAllRestaurantWorkers:input_type -> stakeholders.GetAllWorkersRequest
+	1,  // 10: stakeholders.StakeholdersService.GetRestaurantWorker:input_type -> stakeholders.GetRequest
+	3,  // 11: stakeholders.StakeholdersService.CreateCustomer:output_type -> stakeholders.CustomerResponse
+	3,  // 12: stakeholders.StakeholdersService.GetCustomer:output_type -> stakeholders.CustomerResponse
+	6,  // 13: stakeholders.StakeholdersService.CreateDeliveryPerson:output_type -> stakeholders.DeliveryPersonResponse
+	6,  // 14: stakeholders.StakeholdersService.GetDeliveryPerson:output_type -> stakeholders.DeliveryPersonResponse
+	6,  // 15: stakeholders.StakeholdersService.UpdateWorkingStatus:output_type -> stakeholders.DeliveryPersonResponse
+	8,  // 16: stakeholders.StakeholdersService.CreateRestaurantWorker:output_type -> stakeholders.WorkerResponse
+	10, // 17: stakeholders.StakeholdersService.GetAllRestaurantWorkers:output_type -> stakeholders.GetAllWorkersResponse
+	8,  // 18: stakeholders.StakeholdersService.GetRestaurantWorker:output_type -> stakeholders.WorkerResponse
+	11, // [11:19] is the sub-list for method output_type
+	3,  // [3:11] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_stakeholders_proto_stakeholders_proto_init() }
@@ -599,7 +824,7 @@ func file_stakeholders_proto_stakeholders_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stakeholders_proto_stakeholders_proto_rawDesc), len(file_stakeholders_proto_stakeholders_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

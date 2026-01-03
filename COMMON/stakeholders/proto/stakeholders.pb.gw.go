@@ -194,6 +194,93 @@ func local_request_StakeholdersService_UpdateWorkingStatus_0(ctx context.Context
 	return msg, metadata, err
 }
 
+func request_StakeholdersService_CreateRestaurantWorker_0(ctx context.Context, marshaler runtime.Marshaler, client StakeholdersServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq CreateWorkerRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.CreateRestaurantWorker(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_StakeholdersService_CreateRestaurantWorker_0(ctx context.Context, marshaler runtime.Marshaler, server StakeholdersServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq CreateWorkerRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.CreateRestaurantWorker(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_StakeholdersService_GetAllRestaurantWorkers_0(ctx context.Context, marshaler runtime.Marshaler, client StakeholdersServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAllWorkersRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.GetAllRestaurantWorkers(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_StakeholdersService_GetAllRestaurantWorkers_0(ctx context.Context, marshaler runtime.Marshaler, server StakeholdersServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAllWorkersRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.GetAllRestaurantWorkers(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_StakeholdersService_GetRestaurantWorker_0(ctx context.Context, marshaler runtime.Marshaler, client StakeholdersServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["userId"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "userId")
+	}
+	protoReq.UserId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "userId", err)
+	}
+	msg, err := client.GetRestaurantWorker(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_StakeholdersService_GetRestaurantWorker_0(ctx context.Context, marshaler runtime.Marshaler, server StakeholdersServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["userId"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "userId")
+	}
+	protoReq.UserId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "userId", err)
+	}
+	msg, err := server.GetRestaurantWorker(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 // RegisterStakeholdersServiceHandlerServer registers the http handlers for service StakeholdersService to "mux".
 // UnaryRPC     :call StakeholdersServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -299,6 +386,66 @@ func RegisterStakeholdersServiceHandlerServer(ctx context.Context, mux *runtime.
 			return
 		}
 		forward_StakeholdersService_UpdateWorkingStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_StakeholdersService_CreateRestaurantWorker_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/stakeholders.StakeholdersService/CreateRestaurantWorker", runtime.WithHTTPPathPattern("/stakeholders/worker"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_StakeholdersService_CreateRestaurantWorker_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_StakeholdersService_CreateRestaurantWorker_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_StakeholdersService_GetAllRestaurantWorkers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/stakeholders.StakeholdersService/GetAllRestaurantWorkers", runtime.WithHTTPPathPattern("/stakeholders/workers"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_StakeholdersService_GetAllRestaurantWorkers_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_StakeholdersService_GetAllRestaurantWorkers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_StakeholdersService_GetRestaurantWorker_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/stakeholders.StakeholdersService/GetRestaurantWorker", runtime.WithHTTPPathPattern("/stakeholders/worker/{userId}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_StakeholdersService_GetRestaurantWorker_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_StakeholdersService_GetRestaurantWorker_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -425,21 +572,78 @@ func RegisterStakeholdersServiceHandlerClient(ctx context.Context, mux *runtime.
 		}
 		forward_StakeholdersService_UpdateWorkingStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_StakeholdersService_CreateRestaurantWorker_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/stakeholders.StakeholdersService/CreateRestaurantWorker", runtime.WithHTTPPathPattern("/stakeholders/worker"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_StakeholdersService_CreateRestaurantWorker_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_StakeholdersService_CreateRestaurantWorker_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_StakeholdersService_GetAllRestaurantWorkers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/stakeholders.StakeholdersService/GetAllRestaurantWorkers", runtime.WithHTTPPathPattern("/stakeholders/workers"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_StakeholdersService_GetAllRestaurantWorkers_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_StakeholdersService_GetAllRestaurantWorkers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_StakeholdersService_GetRestaurantWorker_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/stakeholders.StakeholdersService/GetRestaurantWorker", runtime.WithHTTPPathPattern("/stakeholders/worker/{userId}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_StakeholdersService_GetRestaurantWorker_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_StakeholdersService_GetRestaurantWorker_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_StakeholdersService_CreateCustomer_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"stakeholders", "customer"}, ""))
-	pattern_StakeholdersService_GetCustomer_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"stakeholders", "customer", "userId"}, ""))
-	pattern_StakeholdersService_CreateDeliveryPerson_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"stakeholders", "delivery-person"}, ""))
-	pattern_StakeholdersService_GetDeliveryPerson_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"stakeholders", "delivery-person", "userId"}, ""))
-	pattern_StakeholdersService_UpdateWorkingStatus_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"stakeholders", "delivery-person", "status"}, ""))
+	pattern_StakeholdersService_CreateCustomer_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"stakeholders", "customer"}, ""))
+	pattern_StakeholdersService_GetCustomer_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"stakeholders", "customer", "userId"}, ""))
+	pattern_StakeholdersService_CreateDeliveryPerson_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"stakeholders", "delivery-person"}, ""))
+	pattern_StakeholdersService_GetDeliveryPerson_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"stakeholders", "delivery-person", "userId"}, ""))
+	pattern_StakeholdersService_UpdateWorkingStatus_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"stakeholders", "delivery-person", "status"}, ""))
+	pattern_StakeholdersService_CreateRestaurantWorker_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"stakeholders", "worker"}, ""))
+	pattern_StakeholdersService_GetAllRestaurantWorkers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"stakeholders", "workers"}, ""))
+	pattern_StakeholdersService_GetRestaurantWorker_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"stakeholders", "worker", "userId"}, ""))
 )
 
 var (
-	forward_StakeholdersService_CreateCustomer_0       = runtime.ForwardResponseMessage
-	forward_StakeholdersService_GetCustomer_0          = runtime.ForwardResponseMessage
-	forward_StakeholdersService_CreateDeliveryPerson_0 = runtime.ForwardResponseMessage
-	forward_StakeholdersService_GetDeliveryPerson_0    = runtime.ForwardResponseMessage
-	forward_StakeholdersService_UpdateWorkingStatus_0  = runtime.ForwardResponseMessage
+	forward_StakeholdersService_CreateCustomer_0          = runtime.ForwardResponseMessage
+	forward_StakeholdersService_GetCustomer_0             = runtime.ForwardResponseMessage
+	forward_StakeholdersService_CreateDeliveryPerson_0    = runtime.ForwardResponseMessage
+	forward_StakeholdersService_GetDeliveryPerson_0       = runtime.ForwardResponseMessage
+	forward_StakeholdersService_UpdateWorkingStatus_0     = runtime.ForwardResponseMessage
+	forward_StakeholdersService_CreateRestaurantWorker_0  = runtime.ForwardResponseMessage
+	forward_StakeholdersService_GetAllRestaurantWorkers_0 = runtime.ForwardResponseMessage
+	forward_StakeholdersService_GetRestaurantWorker_0     = runtime.ForwardResponseMessage
 )

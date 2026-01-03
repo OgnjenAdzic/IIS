@@ -9,7 +9,10 @@ import {
   CreateCustomerRequest,
   CreateDeliveryPersonRequest,
   CustomerProfile,
-  DeliveryPersonProfile
+  DeliveryPersonProfile,
+  CreateRestaurantWorkerRequest,
+  RestaurantWorkerPersonResponse,
+  AllRestaurantWorkersResponse
 } from '../models/stakeholder';
 
 @Injectable({
@@ -24,9 +27,9 @@ export class Stakeholders {
     const user = this.authService.currentUser();
     if (!user) return of(false);
 
-    const endpoint = user.role === UserRole.DELIVERY_PERSON
-      ? 'delivery-person'
-      : 'customer';
+    let endpoint = 'customer';
+    if (user.role === UserRole.DELIVERY_PERSON) endpoint = 'delivery-person';
+    if (user.role === UserRole.RESTAURANT_WORKER) endpoint = 'worker';
 
     return this.http.get(`${this.apiUrl}/${endpoint}/${user.id}`).pipe(
       map(() => true),
@@ -44,5 +47,15 @@ export class Stakeholders {
     const user = this.authService.currentUser();
     const payload: CreateDeliveryPersonRequest = { ...data, userId: user?.id };
     return this.http.post<DeliveryPersonProfile>(`${this.apiUrl}/delivery-person`, payload);
+  }
+
+  createWorkerProfile(data: CreateRestaurantWorkerRequest) {
+    const user = this.authService.currentUser();
+    const payload: CreateRestaurantWorkerRequest = { ...data, userId: user?.id };
+    return this.http.post<RestaurantWorkerPersonResponse>(`${this.apiUrl}/worker`, payload);
+  }
+
+  getAllWorkers() {
+    return this.http.get<AllRestaurantWorkersResponse>(`${this.apiUrl}/workers`);
   }
 }

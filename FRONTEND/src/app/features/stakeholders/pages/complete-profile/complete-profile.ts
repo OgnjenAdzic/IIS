@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -32,16 +33,30 @@ export class CompleteProfile implements OnInit {
     vehicle: ['CAR']
   });
 
+  private searchSubject = new Subject<string>();
+
   ngOnInit() {
     const user = this.authService.currentUser();
     this.userRole = user?.role;
     if (!user) this.router.navigate(['/login']);
+    this.searchSubject.pipe(
+      debounceTime(100),
+      distinctUntilChanged(),
+      switchMap(query => {
+        // Cancel previous request if new one comes in
+        return this.geoService.searchAddress(query);
+      })
+    ).subscribe(results => {
+      this.addressSuggestions = results;
+    });
   }
 
   onAddressInput(event: any) {
     const query = event.target.value;
-    if (query.length > 3) {
-      this.geoService.searchAddress(query).subscribe(res => this.addressSuggestions = res);
+    if (query.length > 2) {
+      this.searchSubject.next(query);
+    } else {
+      this.addressSuggestions = [];
     }
   }
 
@@ -83,6 +98,17 @@ export class CompleteProfile implements OnInit {
       this.stakeholdersService.createDeliveryProfile(deliveryData).subscribe({
         next: () => this.router.navigate(['/delivery']),
         error: (err) => console.error("Delivery profile failed", err)
+      });
+    }
+    else if (this.userRole === UserRole.RESTAURANT_WORKER) {
+      const workerData = {
+        firstName: formVal.firstName!,
+        lastName: formVal.lastName!
+      };
+
+      this.stakeholdersService.createWorkerProfile(workerData).subscribe({
+        next: () => this.router.navigate(['/restaurant']),
+        error: (err) => console.error("Worker profile creation failed", err)
       });
     }
   }

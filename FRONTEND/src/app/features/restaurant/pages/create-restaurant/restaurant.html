@@ -13,6 +13,26 @@
             <input type="text" formControlName="category" placeholder="e.g. Italian, BBQ">
         </div>
 
+        <div class="form-group">
+            <label class="block text-sm font-medium text-gray-700">Assign Manager</label>
+            <select formControlName="managerId"
+                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border">
+                <option value="" disabled>Select a worker</option>
+
+                @for (worker of availableManagers; track worker.userId) {
+                <option [value]="worker.userId">
+                    {{ worker.firstName }} {{ worker.lastName }}
+                </option>
+                }
+            </select>
+
+            @if (availableManagers.length === 0) {
+            <p class="text-sm text-red-500 mt-1">
+                No workers found. Please create a user with 'Restaurant Worker' role first.
+            </p>
+            }
+        </div>
+
         <div class="form-group position-relative">
             <label>Address (Search & Select)</label>
             <input type="text" (input)="onAddressInput($event)" placeholder="Start typing address..."

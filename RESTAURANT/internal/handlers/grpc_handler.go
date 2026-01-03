@@ -7,6 +7,7 @@ import (
 
 	pb "COMMON/restaurant/proto"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -21,47 +22,17 @@ func NewRestaurantHandler(service *service.RestaurantService) *RestaurantHandler
 	return &RestaurantHandler{service: service}
 }
 
-// Helper to check role
-func authorizeAdmin(ctx context.Context) error {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return status.Error(codes.Unauthenticated, "No metadata found")
-	}
-
-	roles := md.Get("user-role")
-	if len(roles) == 0 {
-		return status.Error(codes.Unauthenticated, "No role found")
-	}
-
-	if roles[0] != "ADMIN" {
-		return status.Error(codes.PermissionDenied, "Admin access required")
-	}
-	return nil
-}
-
-func authorizeRestaurantWorker(ctx context.Context) error {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return status.Error(codes.Unauthenticated, "No metadata found")
-	}
-
-	roles := md.Get("user-role")
-	if len(roles) == 0 {
-		return status.Error(codes.Unauthenticated, "No role found")
-	}
-
-	if roles[0] != "RESTAURANT_WORKER" {
-		return status.Error(codes.PermissionDenied, "Restaurant worker access required")
-	}
-	return nil
-}
-
 func (h *RestaurantHandler) CreateRestaurant(ctx context.Context, req *pb.CreateRestaurantRequest) (*pb.RestaurantResponse, error) {
-	if err := authorizeAdmin(ctx); err != nil {
+	if err := h.authorizeAdmin(ctx); err != nil {
 		return nil, err
 	}
 
-	res, err := h.service.CreateRestaurant(req.Name, req.Category, req.Address, req.Latitude, req.Longitude)
+	managerUUID, err := uuid.Parse(req.ManagerId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "Invalid Manager ID")
+	}
+
+	res, err := h.service.CreateRestaurant(req.Name, req.Category, req.Address, req.Latitude, req.Longitude, managerUUID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to create restaurant")
 	}
@@ -69,7 +40,7 @@ func (h *RestaurantHandler) CreateRestaurant(ctx context.Context, req *pb.Create
 }
 
 func (h *RestaurantHandler) AddMenuItem(ctx context.Context, req *pb.AddMenuItemRequest) (*pb.MenuItemResponse, error) {
-	if err := authorizeRestaurantWorker(ctx); err != nil {
+	if err := h.validateManagerAccess(ctx, req.RestaurantId); err != nil {
 		return nil, err
 	}
 
@@ -85,11 +56,16 @@ func (h *RestaurantHandler) AddMenuItem(ctx context.Context, req *pb.AddMenuItem
 }
 
 func (h *RestaurantHandler) DeleteMenuItem(ctx context.Context, req *pb.DeleteMenuItemRequest) (*pb.MenuItemResponse, error) {
-	if err := authorizeRestaurantWorker(ctx); err != nil {
+	restaurantId, err := h.service.GetRestaurantIdByItem(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "Item not found")
+	}
+
+	if err := h.validateManagerAccess(ctx, restaurantId); err != nil {
 		return nil, err
 	}
 
-	err := h.service.SoftDeleteMenuItem(req.Id)
+	err = h.service.SoftDeleteMenuItem(req.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to delete item")
 	}
@@ -97,7 +73,12 @@ func (h *RestaurantHandler) DeleteMenuItem(ctx context.Context, req *pb.DeleteMe
 }
 
 func (h *RestaurantHandler) UpdateItemPrice(ctx context.Context, req *pb.UpdateItemPriceRequest) (*pb.MenuItemResponse, error) {
-	if err := authorizeRestaurantWorker(ctx); err != nil {
+	restaurantId, err := h.service.GetRestaurantIdByItem(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "Item not found")
+	}
+
+	if err := h.validateManagerAccess(ctx, restaurantId); err != nil {
 		return nil, err
 	}
 
@@ -114,7 +95,7 @@ func (h *RestaurantHandler) UpdateItemPrice(ctx context.Context, req *pb.UpdateI
 }
 
 func (h *RestaurantHandler) UpdateStatus(ctx context.Context, req *pb.UpdateStatusRequest) (*pb.RestaurantResponse, error) {
-	if err := authorizeRestaurantWorker(ctx); err != nil {
+	if err := h.validateManagerAccess(ctx, req.Id); err != nil {
 		return nil, err
 	}
 	res, err := h.service.UpdateStatus(req.Id, req.IsOpen)
@@ -126,7 +107,19 @@ func (h *RestaurantHandler) UpdateStatus(ctx context.Context, req *pb.UpdateStat
 
 // 4. Get All (Public)
 func (h *RestaurantHandler) GetAllRestaurants(ctx context.Context, req *pb.GetAllRestaurantsRequest) (*pb.GetAllRestaurantsResponse, error) {
-	restaurants, err := h.service.GetAll()
+	userId, role, err := getUserMetadata(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var restaurants []models.Restaurant
+
+	if role == "RESTAURANT_WORKER" {
+		restaurants, err = h.service.GetByManagerId(userId)
+	} else {
+		restaurants, err = h.service.GetAll()
+	}
+
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to fetch")
 	}
@@ -147,7 +140,65 @@ func (h *RestaurantHandler) GetRestaurant(ctx context.Context, req *pb.GetRestau
 	return mapToProto(res), nil
 }
 
-// Mapper Helper
+func getUserMetadata(ctx context.Context) (string, string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", "", status.Error(codes.Unauthenticated, "No metadata found")
+	}
+
+	// Extract Role
+	roles := md.Get("user-role")
+	if len(roles) == 0 {
+		return "", "", status.Error(codes.Unauthenticated, "No role found")
+	}
+	role := roles[0]
+
+	// Extract ID
+	ids := md.Get("user-id")
+	if len(ids) == 0 {
+		return "", "", status.Error(codes.Unauthenticated, "No user ID found")
+	}
+	userId := ids[0]
+
+	return userId, role, nil
+}
+
+// Helper to check role
+func (h *RestaurantHandler) authorizeAdmin(ctx context.Context) error {
+	_, role, err := getUserMetadata(ctx)
+	if err != nil {
+		return err
+	}
+
+	if role != "ADMIN" {
+		return status.Error(codes.PermissionDenied, "Admin access required")
+	}
+	return nil
+}
+
+func (h *RestaurantHandler) validateManagerAccess(ctx context.Context, restaurantId string) error {
+	userId, role, err := getUserMetadata(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Rule 1: Admins can manage everything
+	if role == "ADMIN" {
+		return nil
+	}
+
+	// Rule 2: Managers can only manage their own restaurant
+	restaurant, err := h.service.GetById(restaurantId)
+	if err != nil {
+		return status.Error(codes.NotFound, "Restaurant not found")
+	}
+
+	if restaurant.ManagerId.String() != userId {
+		return status.Error(codes.PermissionDenied, "You are not the manager of this restaurant")
+	}
+
+	return nil
+}
 func mapToProto(r *models.Restaurant) *pb.RestaurantResponse {
 	// Map items
 	var protoItems []*pb.MenuItem
@@ -167,6 +218,7 @@ func mapToProto(r *models.Restaurant) *pb.RestaurantResponse {
 		Address:   r.Address,
 		Latitude:  r.Latitude,
 		Longitude: r.Longitude,
+		ManagerId: r.ManagerId.String(),
 		Menu: &pb.Menu{
 			Id:    r.Menu.Id.String(),
 			Items: protoItems,

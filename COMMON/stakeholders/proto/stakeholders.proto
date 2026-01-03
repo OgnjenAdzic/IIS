@@ -42,6 +42,27 @@ service StakeholdersService {
       body: "*"
     };
   }
+
+  rpc CreateRestaurantWorker (CreateWorkerRequest) returns (WorkerResponse) {
+    option (google.api.http) = {
+      post: "/stakeholders/worker"
+      body: "*"
+    };
+  }
+
+  rpc GetAllRestaurantWorkers (GetAllWorkersRequest) returns (GetAllWorkersResponse) {
+    option (google.api.http) = {
+      get: "/stakeholders/workers"
+    };
+  }
+  
+  // Used to check if profile exists
+  rpc GetRestaurantWorker (GetRequest) returns (WorkerResponse) {
+    option (google.api.http) = {
+        get: "/stakeholders/worker/{userId}"
+    };
+  }
+
 }
 
 // --- ENUMS ---
@@ -97,4 +118,22 @@ message DeliveryPersonResponse {
   VehicleType vehicle = 4;
   bool isWorking = 5;
   int32 deliveryCount = 6;
+}
+
+message CreateWorkerRequest {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+}
+
+message WorkerResponse {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+}
+
+message GetAllWorkersRequest {}
+
+message GetAllWorkersResponse {
+  repeated WorkerResponse workers = 1;
 }

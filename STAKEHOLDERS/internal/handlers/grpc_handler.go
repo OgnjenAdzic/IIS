@@ -87,6 +87,48 @@ func (h *StakeholdersHandler) UpdateWorkingStatus(ctx context.Context, req *pb.U
 	return mapDeliveryToProto(dp), nil
 }
 
+func (h *StakeholdersHandler) CreateRestaurantWorker(ctx context.Context, req *pb.CreateWorkerRequest) (*pb.WorkerResponse, error) {
+	w, err := h.service.CreateWorker(req.UserId, req.FirstName, req.LastName)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed")
+	}
+
+	return &pb.WorkerResponse{
+		UserId:    w.UserId.String(),
+		FirstName: w.FirstName,
+		LastName:  w.LastName,
+	}, nil
+}
+
+func (h *StakeholdersHandler) GetAllRestaurantWorkers(ctx context.Context, req *pb.GetAllWorkersRequest) (*pb.GetAllWorkersResponse, error) {
+	workers, err := h.service.GetAllWorkers()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed")
+	}
+
+	var protoWorkers []*pb.WorkerResponse
+	for _, w := range workers {
+		protoWorkers = append(protoWorkers, &pb.WorkerResponse{
+			UserId:    w.UserId.String(),
+			FirstName: w.FirstName,
+			LastName:  w.LastName,
+		})
+	}
+	return &pb.GetAllWorkersResponse{Workers: protoWorkers}, nil
+}
+
+func (h *StakeholdersHandler) GetRestaurantWorker(ctx context.Context, req *pb.GetRequest) (*pb.WorkerResponse, error) {
+	w, err := h.service.GetWorker(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "Worker not found")
+	}
+	return &pb.WorkerResponse{
+		UserId:    w.UserId.String(),
+		FirstName: w.FirstName,
+		LastName:  w.LastName,
+	}, nil
+}
+
 // Helper
 func mapDeliveryToProto(dp *models.DeliveryPerson) *pb.DeliveryPersonResponse {
 	vType := pb.VehicleType_CAR

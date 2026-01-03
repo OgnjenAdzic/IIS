@@ -3,6 +3,8 @@ package service
 import (
 	"restaurant/internal/models"
 	"restaurant/internal/repository"
+
+	"github.com/google/uuid"
 )
 
 type RestaurantService struct {
@@ -13,13 +15,15 @@ func NewRestaurantService(repo *repository.RestaurantRepository) *RestaurantServ
 	return &RestaurantService{repo: repo}
 }
 
-func (s *RestaurantService) CreateRestaurant(name, category, address string, lat, lon float64) (*models.Restaurant, error) {
+func (s *RestaurantService) CreateRestaurant(name, category, address string, lat, lon float64, managerId uuid.UUID) (*models.Restaurant, error) {
 	restaurant := &models.Restaurant{
-		Name:     name,
-		Category: category,
-		IsOpen:   true,
-		Address:  address,
-		Latitude: lat,
+		Name:      name,
+		Category:  category,
+		IsOpen:    true,
+		Address:   address,
+		ManagerId: managerId,
+		Latitude:  lat,
+		Longitude: lon,
 	}
 	err := s.repo.Create(restaurant)
 	return restaurant, err
@@ -51,4 +55,12 @@ func (s *RestaurantService) AddMenuItem(restaurantId, name string, price float64
 		Price: price,
 	}
 	return s.repo.AddMenuItem(restaurantId, item)
+}
+
+func (s *RestaurantService) GetRestaurantIdByItem(itemId string) (string, error) {
+	return s.repo.GetRestaurantIdByMenuItem(itemId)
+}
+
+func (s *RestaurantService) GetByManagerId(managerId string) ([]models.Restaurant, error) {
+	return s.repo.GetByManagerId(managerId)
 }

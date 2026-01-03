@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, of, tap } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -9,39 +9,48 @@ export class GeocodingService {
     private http = inject(HttpClient);
     private readonly API_URL = 'https://nominatim.openstreetmap.org/search';
 
+    // Simple in-memory cache to make repeated searches instant
+    private cache = new Map<string, any[]>();
+
+    // NOVI SAD BOUNDING BOX (approximate coordinates)
+    // [minLon, minLat, maxLon, maxLat]
+    private readonly NOVI_SAD_VIEWBOX = '19.7,45.2,20.0,45.35';
+
     searchAddress(query: string) {
+        // 1. Check Cache first
+        if (this.cache.has(query)) {
+            return of(this.cache.get(query)!);
+        }
+
         return this.http.get<any[]>(this.API_URL, {
             params: {
                 q: query,
                 format: 'json',
                 limit: '5',
-                addressdetails: '1',     // <--- Request detailed parts (Street, Number, City)
-                'accept-language': 'sr-Latn, en' // <--- Request Latin Script (Serbian Latin or English)
+                addressdetails: '1',
+                'accept-language': 'sr-Latn, en', // Latin script
+                // --- OPTIMIZATION PARAMETERS ---
+                countrycodes: 'rs',      // Only Serbia
+                viewbox: this.NOVI_SAD_VIEWBOX, // Only Novi Sad area
+                bounded: '1'             // Strictly enforce the viewbox
             }
         }).pipe(
             map(results => results.map(item => {
-                // 1. Construct a clean address manually
                 const addr = item.address || {};
+                // Clean address logic
                 const street = addr.road || addr.pedestrian || addr.street || '';
                 const number = addr.house_number || '';
-                const city = addr.city || addr.town || addr.village || '';
-
-                // Format: "Jevrejska 1, Novi Sad"
-                let cleanAddress = `${street} ${number}, ${city}`;
-
-                // Fallback if data is missing, use the first part of display_name
-                if (!street) {
-                    cleanAddress = item.display_name.split(',').slice(0, 3).join(',');
-                }
+                // Only show city part if it's not implied
+                let cleanAddress = `${street} ${number}`.trim();
 
                 return {
-                    // We return our clean string instead of the raw display_name
-                    display_name: cleanAddress,
-                    // 2. Ensure we parse coordinates correctly
+                    display_name: cleanAddress + ', Novi Sad', // Enforce NS branding
                     lat: parseFloat(item.lat),
                     lon: parseFloat(item.lon)
                 };
-            }))
+            })),
+            // 2. Save to Cache
+            tap(results => this.cache.set(query, results))
         );
     }
 }

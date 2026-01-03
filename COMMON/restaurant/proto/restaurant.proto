@@ -91,14 +91,16 @@ message RestaurantResponse {
   string address = 6;
   double latitude = 7;
   double longitude = 8;
+  string managerId = 9;
 }
 
 message CreateRestaurantRequest {
   string name = 1;
   string category = 2;
-  string address = 6;
-  double latitude = 7;
-  double longitude = 8;
+  string address = 3;
+  double latitude = 4;
+  double longitude = 5;
+  string managerId = 6;
 }
 
 message UpdateStatusRequest {

@@ -45,3 +45,20 @@ func (r *StakeholdersRepository) UpdateWorkingStatus(userId string, isWorking bo
 	r.DB.Save(&dp)
 	return &dp, nil
 }
+
+// --- RESTAURANT WORKER ---
+func (r *StakeholdersRepository) CreateWorker(w *models.RestaurantWorker) error {
+	return r.DB.Create(w).Error
+}
+
+func (r *StakeholdersRepository) GetWorker(userId string) (*models.RestaurantWorker, error) {
+	var w models.RestaurantWorker
+	err := r.DB.Where("user_id = ?", userId).First(&w).Error
+	return &w, err
+}
+
+func (r *StakeholdersRepository) GetAllWorkers() ([]models.RestaurantWorker, error) {
+	var workers []models.RestaurantWorker
+	err := r.DB.Find(&workers).Error
+	return workers, err
+}

@@ -206,6 +206,7 @@ type RestaurantResponse struct {
 	Address       string                 `protobuf:"bytes,6,opt,name=address,proto3" json:"address,omitempty"`
 	Latitude      float64                `protobuf:"fixed64,7,opt,name=latitude,proto3" json:"latitude,omitempty"`
 	Longitude     float64                `protobuf:"fixed64,8,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	ManagerId     string                 `protobuf:"bytes,9,opt,name=managerId,proto3" json:"managerId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -296,13 +297,21 @@ func (x *RestaurantResponse) GetLongitude() float64 {
 	return 0
 }
 
+func (x *RestaurantResponse) GetManagerId() string {
+	if x != nil {
+		return x.ManagerId
+	}
+	return ""
+}
+
 type CreateRestaurantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Category      string                 `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"`
-	Address       string                 `protobuf:"bytes,6,opt,name=address,proto3" json:"address,omitempty"`
-	Latitude      float64                `protobuf:"fixed64,7,opt,name=latitude,proto3" json:"latitude,omitempty"`
-	Longitude     float64                `protobuf:"fixed64,8,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	Latitude      float64                `protobuf:"fixed64,4,opt,name=latitude,proto3" json:"latitude,omitempty"`
+	Longitude     float64                `protobuf:"fixed64,5,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	ManagerId     string                 `protobuf:"bytes,6,opt,name=managerId,proto3" json:"managerId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -370,6 +379,13 @@ func (x *CreateRestaurantRequest) GetLongitude() float64 {
 		return x.Longitude
 	}
 	return 0
+}
+
+func (x *CreateRestaurantRequest) GetManagerId() string {
+	if x != nil {
+		return x.ManagerId
+	}
+	return ""
 }
 
 type UpdateStatusRequest struct {
@@ -720,7 +736,7 @@ const file_restaurant_proto_restaurant_proto_rawDesc = "" +
 	"\x05price\x18\x03 \x01(\x01R\x05price\"B\n" +
 	"\x04Menu\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12*\n" +
-	"\x05items\x18\x02 \x03(\v2\x14.restaurant.MenuItemR\x05items\"\xe6\x01\n" +
+	"\x05items\x18\x02 \x03(\v2\x14.restaurant.MenuItemR\x05items\"\x84\x02\n" +
 	"\x12RestaurantResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
@@ -729,13 +745,15 @@ const file_restaurant_proto_restaurant_proto_rawDesc = "" +
 	"\x04menu\x18\x05 \x01(\v2\x10.restaurant.MenuR\x04menu\x12\x18\n" +
 	"\aaddress\x18\x06 \x01(\tR\aaddress\x12\x1a\n" +
 	"\blatitude\x18\a \x01(\x01R\blatitude\x12\x1c\n" +
-	"\tlongitude\x18\b \x01(\x01R\tlongitude\"\x9d\x01\n" +
+	"\tlongitude\x18\b \x01(\x01R\tlongitude\x12\x1c\n" +
+	"\tmanagerId\x18\t \x01(\tR\tmanagerId\"\xbb\x01\n" +
 	"\x17CreateRestaurantRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x18\n" +
-	"\aaddress\x18\x06 \x01(\tR\aaddress\x12\x1a\n" +
-	"\blatitude\x18\a \x01(\x01R\blatitude\x12\x1c\n" +
-	"\tlongitude\x18\b \x01(\x01R\tlongitude\"=\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x1a\n" +
+	"\blatitude\x18\x04 \x01(\x01R\blatitude\x12\x1c\n" +
+	"\tlongitude\x18\x05 \x01(\x01R\tlongitude\x12\x1c\n" +
+	"\tmanagerId\x18\x06 \x01(\tR\tmanagerId\"=\n" +
 	"\x13UpdateStatusRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06isOpen\x18\x02 \x01(\bR\x06isOpen\"b\n" +

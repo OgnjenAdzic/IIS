@@ -26,6 +26,7 @@ export interface Restaurant {
     address: string;
     latitude: number;
     longitude: number;
+    managerId: string;
 }
 
 export interface GetAllRestaurantsResponse {

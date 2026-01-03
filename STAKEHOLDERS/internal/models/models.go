@@ -37,3 +37,10 @@ type DeliveryPerson struct {
 	IsWorking     bool        `gorm:"default:false"`
 	DeliveryCount int         `gorm:"default:0"`
 }
+
+// Table: restaurant_workers
+type RestaurantWorker struct {
+	UserId    uuid.UUID `gorm:"type:uuid;primaryKey"`
+	FirstName string    `gorm:"not null"`
+	LastName  string    `gorm:"not null"`
+}

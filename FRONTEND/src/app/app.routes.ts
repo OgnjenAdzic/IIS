@@ -56,7 +56,7 @@ export const routes: Routes = [
         component: CompleteProfile,
         canActivate: [roleGuard],
         data: {
-            roles: [UserRole.CUSTOMER, UserRole.DELIVERY_PERSON]
+            roles: [UserRole.CUSTOMER, UserRole.DELIVERY_PERSON, UserRole.RESTAURANT_WORKER]
         }
     },
     {

@@ -19,11 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StakeholdersService_CreateCustomer_FullMethodName       = "/stakeholders.StakeholdersService/CreateCustomer"
-	StakeholdersService_GetCustomer_FullMethodName          = "/stakeholders.StakeholdersService/GetCustomer"
-	StakeholdersService_CreateDeliveryPerson_FullMethodName = "/stakeholders.StakeholdersService/CreateDeliveryPerson"
-	StakeholdersService_GetDeliveryPerson_FullMethodName    = "/stakeholders.StakeholdersService/GetDeliveryPerson"
-	StakeholdersService_UpdateWorkingStatus_FullMethodName  = "/stakeholders.StakeholdersService/UpdateWorkingStatus"
+	StakeholdersService_CreateCustomer_FullMethodName          = "/stakeholders.StakeholdersService/CreateCustomer"
+	StakeholdersService_GetCustomer_FullMethodName             = "/stakeholders.StakeholdersService/GetCustomer"
+	StakeholdersService_CreateDeliveryPerson_FullMethodName    = "/stakeholders.StakeholdersService/CreateDeliveryPerson"
+	StakeholdersService_GetDeliveryPerson_FullMethodName       = "/stakeholders.StakeholdersService/GetDeliveryPerson"
+	StakeholdersService_UpdateWorkingStatus_FullMethodName     = "/stakeholders.StakeholdersService/UpdateWorkingStatus"
+	StakeholdersService_CreateRestaurantWorker_FullMethodName  = "/stakeholders.StakeholdersService/CreateRestaurantWorker"
+	StakeholdersService_GetAllRestaurantWorkers_FullMethodName = "/stakeholders.StakeholdersService/GetAllRestaurantWorkers"
+	StakeholdersService_GetRestaurantWorker_FullMethodName     = "/stakeholders.StakeholdersService/GetRestaurantWorker"
 )
 
 // StakeholdersServiceClient is the client API for StakeholdersService service.
@@ -37,6 +40,11 @@ type StakeholdersServiceClient interface {
 	CreateDeliveryPerson(ctx context.Context, in *CreateDeliveryPersonRequest, opts ...grpc.CallOption) (*DeliveryPersonResponse, error)
 	GetDeliveryPerson(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*DeliveryPersonResponse, error)
 	UpdateWorkingStatus(ctx context.Context, in *UpdateWorkStatusRequest, opts ...grpc.CallOption) (*DeliveryPersonResponse, error)
+	CreateRestaurantWorker(ctx context.Context, in *CreateWorkerRequest, opts ...grpc.CallOption) (*WorkerResponse, error)
+	// Used by Admin to populate the dropdown
+	GetAllRestaurantWorkers(ctx context.Context, in *GetAllWorkersRequest, opts ...grpc.CallOption) (*GetAllWorkersResponse, error)
+	// Used to check if profile exists
+	GetRestaurantWorker(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*WorkerResponse, error)
 }
 
 type stakeholdersServiceClient struct {
@@ -97,6 +105,36 @@ func (c *stakeholdersServiceClient) UpdateWorkingStatus(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *stakeholdersServiceClient) CreateRestaurantWorker(ctx context.Context, in *CreateWorkerRequest, opts ...grpc.CallOption) (*WorkerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WorkerResponse)
+	err := c.cc.Invoke(ctx, StakeholdersService_CreateRestaurantWorker_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stakeholdersServiceClient) GetAllRestaurantWorkers(ctx context.Context, in *GetAllWorkersRequest, opts ...grpc.CallOption) (*GetAllWorkersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllWorkersResponse)
+	err := c.cc.Invoke(ctx, StakeholdersService_GetAllRestaurantWorkers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stakeholdersServiceClient) GetRestaurantWorker(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*WorkerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WorkerResponse)
+	err := c.cc.Invoke(ctx, StakeholdersService_GetRestaurantWorker_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StakeholdersServiceServer is the server API for StakeholdersService service.
 // All implementations must embed UnimplementedStakeholdersServiceServer
 // for forward compatibility.
@@ -108,6 +146,11 @@ type StakeholdersServiceServer interface {
 	CreateDeliveryPerson(context.Context, *CreateDeliveryPersonRequest) (*DeliveryPersonResponse, error)
 	GetDeliveryPerson(context.Context, *GetRequest) (*DeliveryPersonResponse, error)
 	UpdateWorkingStatus(context.Context, *UpdateWorkStatusRequest) (*DeliveryPersonResponse, error)
+	CreateRestaurantWorker(context.Context, *CreateWorkerRequest) (*WorkerResponse, error)
+	// Used by Admin to populate the dropdown
+	GetAllRestaurantWorkers(context.Context, *GetAllWorkersRequest) (*GetAllWorkersResponse, error)
+	// Used to check if profile exists
+	GetRestaurantWorker(context.Context, *GetRequest) (*WorkerResponse, error)
 	mustEmbedUnimplementedStakeholdersServiceServer()
 }
 
@@ -132,6 +175,15 @@ func (UnimplementedStakeholdersServiceServer) GetDeliveryPerson(context.Context,
 }
 func (UnimplementedStakeholdersServiceServer) UpdateWorkingStatus(context.Context, *UpdateWorkStatusRequest) (*DeliveryPersonResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorkingStatus not implemented")
+}
+func (UnimplementedStakeholdersServiceServer) CreateRestaurantWorker(context.Context, *CreateWorkerRequest) (*WorkerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRestaurantWorker not implemented")
+}
+func (UnimplementedStakeholdersServiceServer) GetAllRestaurantWorkers(context.Context, *GetAllWorkersRequest) (*GetAllWorkersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllRestaurantWorkers not implemented")
+}
+func (UnimplementedStakeholdersServiceServer) GetRestaurantWorker(context.Context, *GetRequest) (*WorkerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRestaurantWorker not implemented")
 }
 func (UnimplementedStakeholdersServiceServer) mustEmbedUnimplementedStakeholdersServiceServer() {}
 func (UnimplementedStakeholdersServiceServer) testEmbeddedByValue()                             {}
@@ -244,6 +296,60 @@ func _StakeholdersService_UpdateWorkingStatus_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StakeholdersService_CreateRestaurantWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateWorkerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StakeholdersServiceServer).CreateRestaurantWorker(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StakeholdersService_CreateRestaurantWorker_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StakeholdersServiceServer).CreateRestaurantWorker(ctx, req.(*CreateWorkerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StakeholdersService_GetAllRestaurantWorkers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllWorkersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StakeholdersServiceServer).GetAllRestaurantWorkers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StakeholdersService_GetAllRestaurantWorkers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StakeholdersServiceServer).GetAllRestaurantWorkers(ctx, req.(*GetAllWorkersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StakeholdersService_GetRestaurantWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StakeholdersServiceServer).GetRestaurantWorker(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StakeholdersService_GetRestaurantWorker_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StakeholdersServiceServer).GetRestaurantWorker(ctx, req.(*GetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StakeholdersService_ServiceDesc is the grpc.ServiceDesc for StakeholdersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -270,6 +376,18 @@ var StakeholdersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateWorkingStatus",
 			Handler:    _StakeholdersService_UpdateWorkingStatus_Handler,
+		},
+		{
+			MethodName: "CreateRestaurantWorker",
+			Handler:    _StakeholdersService_CreateRestaurantWorker_Handler,
+		},
+		{
+			MethodName: "GetAllRestaurantWorkers",
+			Handler:    _StakeholdersService_GetAllRestaurantWorkers_Handler,
+		},
+		{
+			MethodName: "GetRestaurantWorker",
+			Handler:    _StakeholdersService_GetRestaurantWorker_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
