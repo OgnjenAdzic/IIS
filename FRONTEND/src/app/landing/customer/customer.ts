@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { RestaurantService } from '../../features/restaurant/services/restaurant';
+import { PricingService } from '../../features/pricing/services/pricing.service';
+import { Stakeholders } from '../../features/stakeholders/service/stakeholders';
+import { AuthService } from '../../auth/service/auth';
 
 @Component({
   selector: 'app-customer',
@@ -12,9 +15,17 @@ import { RestaurantService } from '../../features/restaurant/services/restaurant
 })
 export class Customer implements OnInit {
   restaurantService = inject(RestaurantService);
+  pricingService = inject(PricingService);
+  stakeholdersService = inject(Stakeholders);
+  authService = inject(AuthService);
+
   restaurants = signal<any[]>([]);
   searchTerm = signal<string>('');
   onlyOpen = signal<boolean>(false);
+
+  customerLocation = signal<{ lat: number, lon: number } | null>(null);
+
+  private priceInterval: any;
 
   // 2. COMPUTED SIGNAL (The Magic)
   // This automatically recalculates whenever one of the signals above changes
@@ -36,15 +47,87 @@ export class Customer implements OnInit {
   });
 
   ngOnInit() {
+    this.loadCustomerLocation();
+    this.priceInterval = setInterval(() => {
+      if (this.customerLocation()) {
+        this.calculatePricesForList(this.restaurants());
+      }
+    }, 3000);
+  }
+
+  ngOnDestroy() {
+    if (this.priceInterval) {
+      clearInterval(this.priceInterval);
+    }
+  }
+
+  loadCustomerLocation() {
+    const user = this.authService.currentUser();
+    if (user) {
+      this.stakeholdersService.getCustomerProfile(user.id).subscribe({
+        next: (profile) => {
+          this.customerLocation.set({
+            lat: profile.latitude,
+            lon: profile.longitude
+          });
+          // Only load restaurants after we have location (to calc price)
+          this.loadRestaurants();
+        },
+        error: () => this.loadRestaurants() // Load anyway even if location fails
+      });
+    }
+  }
+
+  loadRestaurants() {
     this.restaurantService.getAll().subscribe({
       next: (res: any) => {
-        // Handle response structure { restaurants: [...] }
-        const data = res.restaurants || res;
-        this.restaurants.set(data);
-      },
-      error: (err) => console.error(err)
+        let data = res.restaurants || res;
+
+        // If we have customer location, calculate price for each restaurant
+        if (this.customerLocation()) {
+          this.calculatePricesForList(data);
+        } else {
+          this.restaurants.set(data);
+        }
+      }
     });
   }
+
+  calculatePricesForList(restaurants: any[]) {
+    const custLoc = this.customerLocation()!;
+
+    const updatedList = restaurants.map(r => ({
+      ...r,
+      deliveryPrice: null, // Placeholder
+      loadingPrice: true
+    }));
+
+    this.restaurants.set(updatedList);
+
+    // Now fetch prices one by one (or you could create a bulk endpoint)
+    updatedList.forEach((r, index) => {
+      this.pricingService.calculatePrice({
+        customerLat: custLoc.lat,
+        customerLon: custLoc.lon,
+        restaurantLat: r.latitude,
+        restaurantLon: r.longitude,
+        isPriority: false // Default
+      }).subscribe(priceRes => {
+        // Update the signal array at specific index
+        this.restaurants.update(currentList => {
+          const newList = [...currentList];
+          const found = newList.find(item => item.id === r.id);
+          if (found) {
+            found.deliveryPrice = priceRes.finalPrice;
+            found.distanceKm = priceRes.distanceKm;
+            found.loadingPrice = false;
+          }
+          return newList;
+        });
+      });
+    });
+  }
+
 
   // Helpers to update signals from HTML (optional, but cleaner)
   updateSearch(text: string) {

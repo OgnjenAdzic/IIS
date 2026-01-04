@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RestaurantService } from '../../services/restaurant';
 import { GeocodingService } from '../../../../services/geocoding.service';
 import { CommonModule } from '@angular/common';
@@ -20,6 +20,7 @@ export class Restaurant implements OnInit { // Implement OnInit
   private geoService = inject(GeocodingService);
   private restaurantService = inject(RestaurantService);
   private stakeholdersService = inject(Stakeholders);
+  private cdr = inject(ChangeDetectorRef);
 
   addressSuggestions: any[] = [];
   availableManagers: any[] = [];
@@ -41,6 +42,7 @@ export class Restaurant implements OnInit { // Implement OnInit
       next: (res: any) => {
         console.log("Loaded workers:", res);
         this.availableManagers = res.workers || [];
+        this.cdr.detectChanges();
       },
       error: (err) => console.error("Could not load workers", err)
     });

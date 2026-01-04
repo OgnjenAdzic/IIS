@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package shopping_cart;
+
+option go_package = "common/shopping_cart/proto";
+
+import "google/api/annotations.proto";
+
+service ShoppingCartService {
+  rpc GetCart (GetCartRequest) returns (CartResponse) {
+    option (google.api.http) = {
+      get: "/cart"
+    };
+  }
+
+  rpc AddItem (AddItemRequest) returns (CartResponse) {
+    option (google.api.http) = {
+      post: "/cart/items"
+      body: "*"
+    };
+  }
+
+
+  rpc UpdateItemQuantity (UpdateQuantityRequest) returns (CartResponse) {
+    option (google.api.http) = {
+      put: "/cart/items"
+      body: "*"
+    };
+  }
+
+
+  rpc RemoveItem (RemoveItemRequest) returns (CartResponse) {
+    option (google.api.http) = {
+      delete: "/cart/items/{itemId}"
+    };
+  }
+
+  rpc ClearCart (ClearCartRequest) returns (CartResponse) {
+    option (google.api.http) = {
+      delete: "/cart"
+    };
+  }
+}
+
+// --- MESSAGES ---
+
+message CartItem {
+  string id = 1;         // DB ID of the row in cart_items
+  string menuItemId = 2; // ID from Restaurant Service
+  string name = 3;
+  double price = 4;
+  int32 quantity = 5;
+}
+
+message CartResponse {
+  string id = 1;         // Cart ID
+  string userId = 2;
+  string restaurantId = 3;
+  repeated CartItem items = 4;
+  double totalPrice = 5;
+}
+
+message GetCartRequest {
+  string userId = 1; // Extracted from Token
+}
+
+message AddItemRequest {
+  string userId = 1;
+  string restaurantId = 2;
+  string menuItemId = 3;
+  string name = 4;
+  double price = 5;
+  int32 quantity = 6;
+}
+
+message UpdateQuantityRequest {
+  string userId = 1;
+  string itemId = 2; // cart_item ID
+  int32 quantity = 3;
+}
+
+message RemoveItemRequest {
+  string userId = 1;
+  string itemId = 2;
+}
+
+message ClearCartRequest {
+  string userId = 1;
+}

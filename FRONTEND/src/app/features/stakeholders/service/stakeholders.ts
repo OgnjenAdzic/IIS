@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviorment';
 import { AuthService } from '../../../auth/service/auth';
@@ -22,6 +22,27 @@ export class Stakeholders {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private apiUrl = `${environment.apiUrl}/stakeholders`;
+
+  currentProfile = signal<any>(null);
+
+  loadCurrentProfile() {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    // Determine endpoint based on role
+    let endpoint = 'customer';
+    if (user.role === UserRole.DELIVERY_PERSON) endpoint = 'delivery-person';
+    if (user.role === UserRole.RESTAURANT_WORKER) endpoint = 'worker';
+
+    // Fetch and SET the signal
+    this.http.get(`${this.apiUrl}/${endpoint}/${user.id}`).subscribe({
+      next: (profile) => {
+        console.log("Caching Profile:", profile);
+        this.currentProfile.set(profile); // <--- THIS STORES IT
+      },
+      error: (err) => console.error("Failed to load profile", err)
+    });
+  }
 
   hasProfile(): Observable<boolean> {
     const user = this.authService.currentUser();
@@ -57,5 +78,17 @@ export class Stakeholders {
 
   getAllWorkers() {
     return this.http.get<AllRestaurantWorkersResponse>(`${this.apiUrl}/workers`);
+  }
+
+  getCustomerProfile(id: string) {
+    return this.http.get<CustomerProfile>(`${this.apiUrl}/customer/${id}`);
+  }
+
+  getCoordinates() {
+    const profile = this.currentProfile();
+    if (profile && profile.latitude && profile.longitude) {
+      return { lat: profile.latitude, lon: profile.longitude };
+    }
+    return null;
   }
 }

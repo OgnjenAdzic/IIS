@@ -11,7 +11,9 @@ import (
 
 	// Import definitions from COMMON
 	pbAuth "COMMON/auth/proto"
+	pbPricing "COMMON/pricing/proto"
 	pbRestaurant "COMMON/restaurant/proto"
+	pbCart "COMMON/shopping_cart/proto"
 	pbStakeholders "COMMON/stakeholders/proto"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -75,6 +77,27 @@ func main() {
 	}
 	fmt.Println("stakeholder Service Registered at " + stakeAddr)
 
+	// --- CART SERVICE ---
+	cartAddr := os.Getenv("CART_SERVICE_ADDRESS")
+	if cartAddr == "" {
+		cartAddr = "shopping-cart-service:8085"
+	}
+	err = pbCart.RegisterShoppingCartServiceHandlerFromEndpoint(ctx, gwmux, cartAddr, opts)
+	if err != nil {
+		log.Fatalf("Failed to register shopping cart: %v", err)
+	}
+	fmt.Println("Shopping Cart Service Registered at " + cartAddr)
+
+	// --- PRICING SERVICE ---
+	pricingAddr := os.Getenv("PRICING_SERVICE_ADDRESS")
+	if pricingAddr == "" {
+		pricingAddr = "pricing-service:8086"
+	}
+	err = pbPricing.RegisterPricingServiceHandlerFromEndpoint(ctx, gwmux, pricingAddr, opts)
+	if err != nil {
+		log.Fatalf("Failed to register pricing service: %v", err)
+	}
+	fmt.Println("Pricing Service Registered at " + pricingAddr)
 	rootMux := http.NewServeMux()
 
 	rootMux.Handle("/", gwmux)

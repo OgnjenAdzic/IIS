@@ -1,10 +1,146 @@
-<div class="admin-dashboard">
-    <h1>Admin Dashboard</h1>
-    <p>Welcome, Admin.</p>
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
 
-    <div class="actions">
-        <button routerLink="/create-restaurant" class="btn-primary">
-            Manage Restaurants (Create)
-        </button>
+        <!-- HEADER -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">System Control Center</h1>
+            <p class="text-gray-500">Welcome back, Admin.</p>
+        </div>
+
+        <!-- 1. QUICK ACTIONS CARD -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Operations</h2>
+            <div class="flex gap-4">
+                <button routerLink="/create-restaurant"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create New Restaurant
+                </button>
+                <!-- Add more admin buttons here later -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- 2. LIVE STATUS (TOGGLES) -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h2 class="text-lg font-semibold text-gray-900">Live System Status</h2>
+                    <p class="text-sm text-gray-500">Toggle global modifiers affecting all orders</p>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <!-- Rush Hour Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-lg bg-orange-100 text-orange-600">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Rush Hour Mode</p>
+                                <p class="text-xs text-gray-500">Adds extra fee to delivery</p>
+                            </div>
+                        </div>
+                        <!-- Switch UI -->
+                        <button (click)="toggleRushHour()"
+                            class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none"
+                            [class.bg-green-500]="status.isRushHour" [class.bg-gray-200]="!status.isRushHour">
+                            <span
+                                class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
+                                [class.translate-x-5]="status.isRushHour"
+                                [class.translate-x-0]="!status.isRushHour"></span>
+                        </button>
+                    </div>
+
+                    <!-- Bad Weather Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-lg bg-blue-100 text-blue-600">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Bad Weather Mode</p>
+                                <p class="text-xs text-gray-500">Adds extra fee for difficult conditions</p>
+                            </div>
+                        </div>
+                        <button (click)="toggleWeather()"
+                            class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none"
+                            [class.bg-green-500]="status.isBadWeather" [class.bg-gray-200]="!status.isBadWeather">
+                            <span
+                                class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
+                                [class.translate-x-5]="status.isBadWeather"
+                                [class.translate-x-0]="!status.isBadWeather"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. PRICING CONFIGURATION (FORM) -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">Pricing Configuration</h2>
+                    @if (successMessage) {
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">{{ successMessage
+                        }}</span>
+                    }
+                </div>
+
+                <form [formGroup]="pricingForm" (ngSubmit)="saveRules()" class="p-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                        <!-- Base Price -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Base Delivery Price (RSD)</label>
+                            <input type="number" formControlName="basePrice"
+                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2">
+                        </div>
+
+                        <!-- Price Per KM -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Price Per KM (RSD)</label>
+                            <input type="number" formControlName="pricePerKm"
+                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2">
+                        </div>
+
+                        <!-- Rush Hour Fee -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Rush Hour Fee (RSD)</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <input type="number" formControlName="rushHourFee"
+                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Added when Rush Hour is ON</p>
+                        </div>
+
+                        <!-- Weather Fee -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Bad Weather Fee (RSD)</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <input type="number" formControlName="weatherFee"
+                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Added when Weather is ON</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button type="submit" [disabled]="pricingForm.invalid || pricingForm.pristine"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            Update Pricing Rules
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
     </div>
 </div>

@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package pricing;
+
+option go_package = "common/pricing/proto";
+
+import "google/api/annotations.proto";
+
+service PricingService {
+  rpc CalculatePrice (CalculatePriceRequest) returns (CalculatePriceResponse) {
+    option (google.api.http) = {
+      post: "/pricing/calculate"
+      body: "*"
+    };
+  }
+
+  rpc UpdatePricingRules (UpdateRulesRequest) returns (PricingRulesResponse) {
+    option (google.api.http) = {
+      post: "/pricing/rules"
+      body: "*"
+    };
+  }
+
+  rpc UpdateSystemStatus (UpdateStatusRequest) returns (SystemStatusResponse) {
+    option (google.api.http) = {
+      put: "/pricing/status"
+      body: "*"
+    };
+  }
+
+  rpc GetCurrentConfig (GetConfigRequest) returns (ConfigResponse) {
+    option (google.api.http) = {
+      get: "/pricing/config"
+    };
+  }
+}
+
+// MESSAGES
+
+message CalculatePriceRequest {
+  double customerLat = 1;
+  double customerLon = 2;
+  double restaurantLat = 3;
+  double restaurantLon = 4;
+  bool isPriority = 5;
+}
+
+message CalculatePriceResponse {
+  double finalPrice = 1;
+  double distanceKm = 2; 
+  double basePrice = 3;
+  double distancePrice = 4;
+  double rushHourFee = 5; 
+  double weatherFee = 6; 
+}
+
+message UpdateRulesRequest {
+  double basePrice = 1;
+  double pricePerKm = 2;
+  double rushHourFee = 3; 
+  double weatherFee = 4;  
+}
+
+message PricingRulesResponse {
+  string id = 1;
+  double basePrice = 2;
+  double pricePerKm = 3;
+  double rushHourFee = 4;
+  double weatherFee = 5;
+}
+
+message UpdateStatusRequest {
+  bool isRushHour = 1;
+  bool isBadWeather = 2;
+}
+
+message SystemStatusResponse {
+  bool isRushHour = 1;
+  bool isBadWeather = 2;
+}
+
+message GetConfigRequest {
+  // Empty
+}
+
+message ConfigResponse {
+  PricingRulesResponse rules = 1;
+  SystemStatusResponse status = 2;
+}

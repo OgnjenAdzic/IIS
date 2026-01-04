@@ -29,6 +29,27 @@
                     </p>
                 </div>
 
+                <div class="flex items-center gap-2">
+                    <div
+                        class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 border border-indigo-100">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+
+                        @if (calculatingPrice()) {
+                        <span class="font-normal">Calculating delivery fee...</span>
+                        } @else if (deliveryInfo(); as info) {
+                        <span>Delivery: {{ info.price }} RSD</span>
+                        <span class="text-indigo-400 font-normal ml-1">({{ info.distance }} km)</span>
+                        } @else {
+                        <span class="font-normal text-gray-500">Delivery price unavailable</span>
+                        }
+                    </div>
+                </div>
+
+
+
                 <button routerLink="/customer"
                     class="text-sm text-gray-500 hover:text-indigo-600 font-medium transition-colors">
                     ← Back to Restaurants
