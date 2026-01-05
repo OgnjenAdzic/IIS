@@ -10,6 +10,7 @@ import (
 	"API_GATEWAY/middleware"
 
 	// Import definitions from COMMON
+	pbAnalysis "COMMON/analysis/proto"
 	pbAuth "COMMON/auth/proto"
 	pbPricing "COMMON/pricing/proto"
 	pbRestaurant "COMMON/restaurant/proto"
@@ -98,6 +99,19 @@ func main() {
 		log.Fatalf("Failed to register pricing service: %v", err)
 	}
 	fmt.Println("Pricing Service Registered at " + pricingAddr)
+
+	// --- ANALYSIS SERVICE ---
+	analysisAddr := os.Getenv("ANALYSIS_SERVICE_ADDRESS")
+	if analysisAddr == "" {
+		analysisAddr = "analysis-service:8087"
+	}
+	err = pbAnalysis.RegisterAnalysisServiceHandlerFromEndpoint(ctx, gwmux, analysisAddr, opts)
+	if err != nil {
+		log.Fatalf("Failed to register analysis service: %v", err)
+	}
+	fmt.Println("Analysis Service Registered at " + analysisAddr)
+
+	// 2. Start HTTP server (and proxy calls to gRPC server endpoint)
 	rootMux := http.NewServeMux()
 
 	rootMux.Handle("/", gwmux)

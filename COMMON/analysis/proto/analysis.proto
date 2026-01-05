@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package analysis;
+
+option go_package = "common/analysis/proto";
+
+import "google/api/annotations.proto";
+
+service AnalysisService {
+  rpc CalculateFees (CalculationRequest) returns (FeeResponse) {
+    option (google.api.http) = {
+      post: "/analysis/calculate"
+      body: "*"
+    };
+  }
+
+
+  rpc UpdateFeeConfiguration (UpdateConfigRequest) returns (FeeConfigResponse) {
+    option (google.api.http) = {
+      post: "/analysis/config"
+      body: "*"
+    };
+  }
+
+  rpc GetCurrentConfig (GetConfigRequest) returns (FeeConfigResponse) {
+    option (google.api.http) = {
+      get: "/analysis/config"
+    };
+  }
+
+  rpc RecordOrderProfit (RecordProfitRequest) returns (RecordProfitResponse) {
+    option (google.api.http) = {
+      post: "/analysis/record"
+      body: "*"
+    };
+  }
+
+  rpc GetAnalytics (GetAnalyticsRequest) returns (AnalyticsResponse) {
+    option (google.api.http) = {
+      get: "/analysis/analytics"
+    };
+  }
+}
+
+// MESSAGES
+
+message CalculationRequest {
+  double itemsTotal = 1;    // Price of food
+  double deliveryPrice = 2; // Price from Pricing Service
+}
+
+message FeeResponse {
+  double appFee = 1;
+  double smallOrderFee = 2;
+  double estimatedProfit = 3;        
+}
+
+message UpdateConfigRequest {
+  double itemRevenuePercent = 1;     // e.g. 10% from restaurant
+  double deliveryRevenuePercent = 2; // e.g. 5% from delivery fee
+  double appFeePercent = 3;          // e.g. 6%
+  double appFeeCap = 4;              // e.g. 250 RSD
+  double smallOrderThreshold = 5;    // e.g. 599 RSD
+  double smallOrderFee = 6;          // e.g. 149 RSD
+}
+
+message FeeConfigResponse {
+  string id = 1;
+  double itemRevenuePercent = 2;
+  double deliveryRevenuePercent = 3;
+  double appFeePercent = 4;
+  double appFeeCap = 5;
+  double smallOrderThreshold = 6;
+  double smallOrderFee = 7;
+}
+
+message GetConfigRequest {}
+
+message RecordProfitRequest {
+  string orderId = 1;
+  string restaurantId = 2;
+  string userId = 3;
+  double appFee = 4;
+  double smallOrderFee = 5;
+  double profitFromItems = 6;
+  double profitFromDelivery = 7;
+  double totalProfit = 8;
+}
+
+message RecordProfitResponse {
+  bool success = 1;
+}
+
+message TopEntity {
+  string id = 1;      
+  double amount = 2;  
+  int32 count = 3;    
+}
+
+message AnalyticsResponse {
+  double totalRevenue = 1;
+  repeated TopEntity topRestaurants = 2; 
+  repeated TopEntity topUsers = 3;       
+}
+
+message GetAnalyticsRequest {}

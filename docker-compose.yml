@@ -18,6 +18,7 @@ services:
       - stakeholders
       - shopping-cart
       - pricing
+      - analysis
   auth:
     build:
       context: .
@@ -188,9 +189,44 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5437:5432" # External Port 5437
+      - "5437:5432"
     volumes:
       - pricing_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  analysis:
+    build:
+      context: .
+      dockerfile: ANALYSIS/Dockerfile
+    container_name: analysis-service
+    ports:
+      - "8087:8087"
+    environment:
+      DB_HOST: analysis-db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: analysis_db
+      DB_PORT: 5432
+    depends_on:
+      analysis-db:
+        condition: service_healthy
+
+  analysis-db:
+    image: postgres:16
+    container_name: analysis-db
+    restart: always
+    environment:
+      POSTGRES_DB: analysis_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5438:5432"
+    volumes:
+      - analysis_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -203,5 +239,6 @@ volumes:
   stakeholders_data:
   cart_data:
   pricing_data:
+  analysis_data:
 
 

@@ -6,6 +6,7 @@ import (
 	"pricing/internal/service"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -40,7 +41,9 @@ func (h *PricingHandler) CalculatePrice(ctx context.Context, req *pb.CalculatePr
 }
 
 func (h *PricingHandler) UpdatePricingRules(ctx context.Context, req *pb.UpdateRulesRequest) (*pb.PricingRulesResponse, error) {
-	// Pass Fees instead of Multipliers
+	if err := h.authorizeAdmin(ctx); err != nil {
+		return nil, err
+	}
 	rule, err := h.service.UpdateRules(req.BasePrice, req.PricePerKm, req.RushHourFee, req.WeatherFee)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Update failed")
@@ -78,4 +81,39 @@ func (h *PricingHandler) GetCurrentConfig(ctx context.Context, _ *pb.GetConfigRe
 		Rules:  &pb.PricingRulesResponse{BasePrice: rule.BasePrice, PricePerKm: rule.PricePerKm, RushHourFee: rule.RushHourFee, WeatherFee: rule.WeatherFee},
 		Status: &pb.SystemStatusResponse{IsRushHour: st.IsRushHour, IsBadWeather: st.IsBadWeather},
 	}, nil
+}
+
+func getUserMetadata(ctx context.Context) (string, string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", "", status.Error(codes.Unauthenticated, "No metadata found")
+	}
+
+	// Extract Role
+	roles := md.Get("user-role")
+	if len(roles) == 0 {
+		return "", "", status.Error(codes.Unauthenticated, "No role found")
+	}
+	role := roles[0]
+
+	// Extract ID
+	ids := md.Get("user-id")
+	if len(ids) == 0 {
+		return "", "", status.Error(codes.Unauthenticated, "No user ID found")
+	}
+	userId := ids[0]
+
+	return userId, role, nil
+}
+
+func (h *PricingHandler) authorizeAdmin(ctx context.Context) error {
+	_, role, err := getUserMetadata(ctx)
+	if err != nil {
+		return err
+	}
+
+	if role != "ADMIN" {
+		return status.Error(codes.PermissionDenied, "Admin access required")
+	}
+	return nil
 }

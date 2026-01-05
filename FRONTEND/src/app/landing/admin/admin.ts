@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { PricingService } from '../../features/pricing/services/pricing.service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SystemStatus } from '../../features/pricing/models/pricing.model';
+import { AnalysisService } from '../../features/analysis/services/analysis.service';
 
 @Component({
   selector: 'app-admin',
@@ -15,6 +16,7 @@ import { SystemStatus } from '../../features/pricing/models/pricing.model';
 export class Admin {
   authService = inject(AuthService);
   pricingService = inject(PricingService);
+  analysisService = inject(AnalysisService);
   fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
 
@@ -29,8 +31,18 @@ export class Admin {
     weatherFee: [0, [Validators.required, Validators.min(0)]]
   });
 
+  analysisForm = this.fb.group({
+    itemRevenuePercent: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+    deliveryRevenuePercent: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+    appFeePercent: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+    appFeeCap: [0, [Validators.required, Validators.min(0)]],
+    smallOrderThreshold: [0, [Validators.required, Validators.min(0)]],
+    smallOrderFee: [0, [Validators.required, Validators.min(0)]]
+  });
+
   ngOnInit() {
     this.loadConfig();
+    this.loadAnalysisConfig();
   }
 
   loadConfig() {
@@ -45,6 +57,19 @@ export class Admin {
       error: (err) => {
         console.error('Failed to load config', err);
         this.isLoading = false;
+      }
+    });
+  }
+
+  loadAnalysisConfig() {
+    this.analysisService.getConfig().subscribe({
+      next: (config) => {
+        this.analysisForm.patchValue(config);
+        console.log(config);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load analysis config', err);
       }
     });
   }
@@ -90,8 +115,20 @@ export class Admin {
     }
   }
 
+  saveAnalysisRules() {
+    if (this.analysisForm.valid) {
+      this.analysisService.updateConfig(this.analysisForm.value as any).subscribe({
+        next: () => {
+          this.showSuccess('Financial config updated!');
+          this.cdr.detectChanges();
+        },
+        error: () => alert('Failed to update analysis config')
+      });
+    }
+  }
+
   private showSuccess(msg: string) {
     this.successMessage = msg;
-    setTimeout(() => this.successMessage = '', 3000); // Hide after 3s
+    setTimeout(() => this.successMessage = '', 3000);
   }
 }

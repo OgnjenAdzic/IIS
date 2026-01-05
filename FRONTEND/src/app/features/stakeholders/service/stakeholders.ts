@@ -29,10 +29,13 @@ export class Stakeholders {
     const user = this.authService.currentUser();
     if (!user) return;
 
+    if (user.role === UserRole.ADMIN) return;
+
     // Determine endpoint based on role
     let endpoint = 'customer';
     if (user.role === UserRole.DELIVERY_PERSON) endpoint = 'delivery-person';
     if (user.role === UserRole.RESTAURANT_WORKER) endpoint = 'worker';
+
 
     // Fetch and SET the signal
     this.http.get(`${this.apiUrl}/${endpoint}/${user.id}`).subscribe({
