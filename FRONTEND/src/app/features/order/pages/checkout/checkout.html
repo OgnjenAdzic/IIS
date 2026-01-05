@@ -1,0 +1,169 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- LEFT COLUMN: ADDRESS & CART -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- 1. Address Section -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Delivery Address
+                    </h2>
+
+                    <!-- Toggle Switch -->
+                    <div class="flex items-center mb-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" [checked]="useCustomAddress()" (change)="toggleAddressMode()"
+                                class="sr-only peer">
+                            <div
+                                class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
+                            </div>
+                            <span class="ms-3 text-sm font-medium text-gray-900">Use a different address</span>
+                        </label>
+                    </div>
+
+                    <!-- Default Address View -->
+                    @if (!useCustomAddress() && defaultProfile) {
+                    <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                        <p class="font-medium text-gray-900">My Saved Address</p>
+                        <p class="text-gray-600">{{ defaultProfile.address }}</p>
+                    </div>
+                    }
+
+                    <!-- Custom Address Search -->
+                    @if (useCustomAddress()) {
+                    <div class="relative">
+                        <input type="text" (input)="onAddressInput($event)" placeholder="Search new address..."
+                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                        @if (addressSuggestions.length > 0) {
+                        <ul
+                            class="absolute z-10 w-full bg-white border border-gray-200 rounded-md mt-1 shadow-lg max-h-60 overflow-auto">
+                            @for (addr of addressSuggestions; track $index) {
+                            <li (click)="selectCustomAddress(addr)" class="p-2 hover:bg-indigo-50 cursor-pointer">
+                                {{ addr.display_name }}
+                            </li>
+                            }
+                        </ul>
+                        }
+                        @if (customAddress.name) {
+                        <p class="mt-2 text-sm text-green-600">Selected: {{ customAddress.name }}</p>
+                        }
+                    </div>
+                    }
+                </div>
+
+                <!-- 2. Items List -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Order Items</h2>
+                    <ul class="divide-y divide-gray-200">
+                        @for (item of cartItems(); track item.id) {
+                        <li class="py-4 flex justify-between">
+                            <div>
+                                <p class="font-medium">{{ item.name }}</p>
+                                <p class="text-sm text-gray-500">x{{ item.quantity }}</p>
+                            </div>
+                            <p class="font-medium">{{ item.price * item.quantity }} RSD</p>
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: FINANCIAL BREAKDOWN -->
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg p-6 sticky top-24">
+                    <h2 class="text-xl font-bold mb-6 text-gray-900">Order Summary</h2>
+
+                    <!-- Items Subtotal -->
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600">Items Subtotal</span>
+                        <span class="font-medium">{{ cartTotal() }} RSD</span>
+                    </div>
+
+                    <hr class="my-4 border-gray-100">
+
+                    <!-- Delivery Section -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Base Delivery</span>
+                            <span>{{ fees().baseDelivery }} RSD</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Distance Fee</span>
+                            <span>{{ fees().distanceFee | number:'1.2-2'}} RSD</span>
+                        </div>
+
+                        <!-- Dynamic Fees -->
+                        @if (fees().rushHourFee > 0) {
+                        <div class="flex justify-between text-sm text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                            <span>Rush Hour Fee</span>
+                            <span>+{{ fees().rushHourFee }} RSD</span>
+                        </div>
+                        }
+                        @if (fees().weatherFee > 0) {
+                        <div class="flex justify-between text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                            <span>Bad Weather Fee</span>
+                            <span>+{{ fees().weatherFee }} RSD</span>
+                        </div>
+                        }
+
+                        <!-- Priority Toggle -->
+                        <div class="flex items-center justify-between pt-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" [checked]="isPriority()" (change)="togglePriority()"
+                                    class="mr-2">
+                                <span class="text-sm font-medium text-gray-700">Priority Delivery (+20%)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-gray-100">
+
+                    <!-- Service Fees -->
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Service Fee</span>
+                            <span>{{ fees().appFee }} RSD</span>
+                        </div>
+                        @if (fees().smallOrderFee > 0) {
+                        <div class="flex justify-between text-sm text-red-600">
+                            <span>Small Order Fee</span>
+                            <span>+{{ fees().smallOrderFee }} RSD</span>
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Total -->
+                    <div class="border-t border-gray-200 pt-4 mb-6">
+                        <div class="flex justify-between items-end">
+                            <span class="text-lg font-bold text-gray-900">Total</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-extrabold text-indigo-600">
+                                    {{ loadingCosts() ? '...' : fees().grandTotal }} RSD
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Place Order Button -->
+                    <button (click)="placeOrder()"
+                        [disabled]="loadingCosts() || (useCustomAddress() && !customAddress.lat)"
+                        class="w-full bg-black text-white py-4 rounded-lg font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                        Place Order
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

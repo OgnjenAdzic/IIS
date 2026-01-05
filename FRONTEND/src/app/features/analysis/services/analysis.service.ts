@@ -17,4 +17,8 @@ export class AnalysisService {
   updateConfig(config: FeeConfig) {
     return this.http.post<FeeConfig>(`${this.apiUrl}/config`, config);
   }
+
+  calculateFees(itemsTotal: number, deliveryPrice: number) {
+    return this.http.post<any>(`${this.apiUrl}/calculate`, { itemsTotal, deliveryPrice });
+  }
 }

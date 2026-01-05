@@ -1,17 +1,23 @@
 services:
 
+  # --- GATEWAY (The Only Public Entry Point) ---
   gateway:
     build:
       context: .
       dockerfile: API_GATEWAY/Dockerfile
     container_name: api-gateway
     ports:
-      - "8080:8080"
+      - "8080:8080" # ONLY this is exposed to your browser
     environment:
+      # These addresses are INTERNAL to the Docker network
       - AUTH_SERVICE_ADDRESS=auth-service:8082
-      - JWT_SECRET=my_super_secure_delivery_app_secret_key_2025
       - RESTAURANT_SERVICE_ADDRESS=restaurant-service:8083
       - STAKEHOLDERS_SERVICE_ADDRESS=stakeholders-service:8084
+      - SHOPPING_CART_SERVICE_ADDRESS=shopping-cart-service:8085
+      - PRICING_SERVICE_ADDRESS=pricing-service:8086
+      - ANALYSIS_SERVICE_ADDRESS=analysis-service:8087
+      - ORDER_SERVICE_ADDRESS=order-service:8088
+      - JWT_SECRET=my_super_secure_delivery_app_secret_key_2025
     depends_on:
       - auth
       - restaurant
@@ -19,27 +25,26 @@ services:
       - shopping-cart
       - pricing
       - analysis
+      - order
+
+  # --- AUTH ---
   auth:
     build:
       context: .
       dockerfile: AUTH/Dockerfile
     container_name: auth-service
-    ports:
-      - "8082:8082" # Expose gRPC port to host
+    # No "ports" section -> Internal Only
     environment:
-      # Database Connection
-      DB_HOST: auth-db # Must match the container name below
+      DB_HOST: auth-db
       DB_USER: postgres
       DB_PASSWORD: postgrespassword
       DB_NAME: auth_db
-      DB_PORT: 5432 # Internal port of the database container
-
-      # App Config
-      PORT: 8082
+      DB_PORT: 5432
+      PORT: 8082 # Internal Listening Port
       JWT_SECRET: "my_super_secure_delivery_app_secret_key_2025"
     depends_on:
       auth-db:
-        condition: service_healthy # Waits for DB to be ready before starting app
+        condition: service_healthy
 
   auth-db:
     image: postgres:16
@@ -50,7 +55,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
     ports:
-      - "5433:5432" # External Port 5433 -> Internal Port 5432
+      - "5433:5432" # Database can stay exposed for Admin tools (DBeaver)
     volumes:
       - auth_data:/var/lib/postgresql/data
     healthcheck:
@@ -59,19 +64,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- RESTAURANT ---
   restaurant:
     build:
       context: .
       dockerfile: RESTAURANT/Dockerfile
     container_name: restaurant-service
-    ports:
-      - "8083:8083"
+    # No "ports" section
     environment:
       DB_HOST: restaurant-db
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: restaurant_db
       DB_PORT: 5432
+      PORT: 8083 # Internal Listening Port
     depends_on:
       restaurant-db:
         condition: service_healthy
@@ -94,22 +100,24 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- STAKEHOLDERS ---
   stakeholders:
     build:
       context: .
       dockerfile: STAKEHOLDERS/Dockerfile
     container_name: stakeholders-service
-    ports:
-      - "8084:8084"
+    # No "ports" section
     environment:
       DB_HOST: stakeholders-db
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: stakeholders_db
       DB_PORT: 5432
+      PORT: 8084 # Internal Listening Port
     depends_on:
       stakeholders-db:
         condition: service_healthy
+
   stakeholders-db:
     image: postgres:16
     container_name: stakeholders-db
@@ -128,19 +136,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- SHOPPING CART ---
   shopping-cart:
     build:
       context: .
       dockerfile: SHOPPING_CART/Dockerfile
     container_name: shopping-cart-service
-    ports:
-      - "8085:8085"
+    # No "ports" section
     environment:
       DB_HOST: shopping-cart-db
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: cart_db
       DB_PORT: 5432
+      PORT: 8085 # Internal Listening Port
     depends_on:
       shopping-cart-db:
         condition: service_healthy
@@ -163,19 +172,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- PRICING ---
   pricing:
     build:
       context: .
       dockerfile: PRICING/Dockerfile
     container_name: pricing-service
-    ports:
-      - "8086:8086"
+    # No "ports" section
     environment:
       DB_HOST: pricing-db
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: pricing_db
       DB_PORT: 5432
+      PORT: 8086 # Internal Listening Port
     depends_on:
       pricing-db:
         condition: service_healthy
@@ -198,19 +208,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- ANALYSIS ---
   analysis:
     build:
       context: .
       dockerfile: ANALYSIS/Dockerfile
     container_name: analysis-service
-    ports:
-      - "8087:8087"
+    # No "ports" section
     environment:
       DB_HOST: analysis-db
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: analysis_db
       DB_PORT: 5432
+      PORT: 8087 # Internal Listening Port
     depends_on:
       analysis-db:
         condition: service_healthy
@@ -233,6 +244,42 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- ORDER ---
+  order:
+    build:
+      context: .
+      dockerfile: ORDER/Dockerfile
+    container_name: order-service
+    # No "ports" section
+    environment:
+      DB_HOST: order-db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: order_db
+      DB_PORT: 5432
+      PORT: 8088 # Internal Listening Port
+    depends_on:
+      order-db:
+        condition: service_healthy
+
+  order-db:
+    image: postgres:16
+    container_name: order-db
+    restart: always
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5439:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   auth_data:
   restaurant_data:
@@ -240,5 +287,4 @@ volumes:
   cart_data:
   pricing_data:
   analysis_data:
-
-
+  order_data:

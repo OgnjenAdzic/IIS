@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/services';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart-sidebar',
@@ -11,6 +12,7 @@ import { CartService } from '../../services/services';
 })
 export class CartSidebarComponent {
   cartService = inject(CartService);
+  Router = inject(Router);
 
   items = this.cartService.cartItems;
   total = this.cartService.totalPrice;
@@ -21,6 +23,7 @@ export class CartSidebarComponent {
   }
 
   checkout() {
-    alert("Proceeding to checkout with total: " + this.total());
+    this.Router.navigate(['/checkout']);
+    this.close();
   }
 }

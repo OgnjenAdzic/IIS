@@ -19,6 +19,7 @@ export class CartService {
   // Signals remain for UI binding
   cartItems = signal<CartItem[]>([]);
   isOpen = signal<boolean>(false);
+  cartRestaurantId = signal<string>('');
 
   // Total computed from backend data or frontend (for speed)
   totalPrice = computed(() => this.cartItems().reduce((acc, i) => acc + (i.price * i.quantity), 0));
@@ -38,6 +39,7 @@ export class CartService {
       next: (res) => {
         // Backend returns: { items: [...], totalPrice: ... }
         this.cartItems.set(res.items || []);
+        this.cartRestaurantId.set(res.restaurantId || '');
       },
       error: (err) => console.error("Cart load failed", err)
     });
@@ -56,6 +58,7 @@ export class CartService {
     this.http.post<CartResponse>(`${this.apiUrl}/items`, payload).subscribe({
       next: (res) => {
         this.cartItems.set(res.items); // Update UI with server response
+        this.cartRestaurantId.set(res.restaurantId);
         this.isOpen.set(true); // Open Sidebar
       }
     });

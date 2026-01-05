@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "common/order/proto";
+
+import "google/api/annotations.proto";
+
+service OrderService {
+  // 1. Create Order (The Orchestrator)
+  rpc CreateOrder (CreateOrderRequest) returns (OrderResponse) {
+    option (google.api.http) = {
+      post: "/orders"
+      body: "*"
+    };
+  }
+
+  // 2. Get My Orders
+  rpc GetMyOrders (GetOrdersRequest) returns (GetOrdersResponse) {
+    option (google.api.http) = {
+      get: "/orders"
+    };
+  }
+
+  // 3. Update Status (For Restaurant/Delivery)
+  rpc UpdateOrderStatus (UpdateStatusRequest) returns (OrderResponse) {
+    option (google.api.http) = {
+      put: "/orders/{orderId}/status"
+      body: "*"
+    };
+  }
+}
+
+enum OrderStatus {
+  PENDING = 0;
+  PREPARING = 1;
+  READY_FOR_PICKUP = 2;
+  IN_DELIVERY = 3;
+  DELIVERED = 4;
+  CANCELLED = 5;
+}
+
+message OrderItem {
+  string name = 1;
+  double price = 2; 
+  int32 quantity = 3;
+}
+
+message OrderResponse {
+  string id = 1;
+  string restaurantId = 2;
+  string customerId = 3;
+  string deliveryPersonId = 4; 
+  
+  string status = 5;
+  string deliveryAddress = 6;
+  
+  double itemsTotal = 7;
+  double deliveryFee = 8;
+  double appFee = 9;
+  double smallOrderFee = 10;
+  double totalPrice = 11;
+
+  repeated OrderItem items = 12;
+  string createdAt = 13;
+  bool isPriority = 14;
+}
+
+message CreateOrderRequest {
+  string userId = 1; 
+  string customAddress = 2;
+  double customLat = 3;
+  double customLon = 4;
+  bool isPriority = 5; 
+}
+
+message GetOrdersRequest {
+  string userId = 1;
+  string role = 2; 
+}
+
+message GetOrdersResponse {
+  repeated OrderResponse orders = 1;
+}
+
+message UpdateStatusRequest {
+  string orderId = 1;
+  OrderStatus status = 2;
+  string deliveryPersonId = 3; 
+}

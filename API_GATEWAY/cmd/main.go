@@ -12,6 +12,7 @@ import (
 	// Import definitions from COMMON
 	pbAnalysis "COMMON/analysis/proto"
 	pbAuth "COMMON/auth/proto"
+	pbOrder "COMMON/order/proto"
 	pbPricing "COMMON/pricing/proto"
 	pbRestaurant "COMMON/restaurant/proto"
 	pbCart "COMMON/shopping_cart/proto"
@@ -110,6 +111,17 @@ func main() {
 		log.Fatalf("Failed to register analysis service: %v", err)
 	}
 	fmt.Println("Analysis Service Registered at " + analysisAddr)
+
+	// --- ORDER SERVICE ---
+	orderAddr := os.Getenv("ORDER_SERVICE_ADDRESS")
+	if orderAddr == "" {
+		orderAddr = "order-service:8088"
+	}
+	err = pbOrder.RegisterOrderServiceHandlerFromEndpoint(ctx, gwmux, orderAddr, opts)
+	if err != nil {
+		log.Fatalf("Failed to register order service: %v", err)
+	}
+	fmt.Println("Order Service Registered at " + orderAddr)
 
 	// 2. Start HTTP server (and proxy calls to gRPC server endpoint)
 	rootMux := http.NewServeMux()

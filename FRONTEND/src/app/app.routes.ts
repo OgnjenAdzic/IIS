@@ -11,6 +11,7 @@ import { RestaurantWorker } from './landing/restaurant-worker/restaurant-worker'
 import { ManageRestaurant } from './features/restaurant/pages/manage-restaurant/manage-restaurant';
 import { CompleteProfile } from './features/stakeholders/pages/complete-profile/complete-profile';
 import { RestaurantMenu } from './features/restaurant/pages/restaurant-menu/restaurant-menu';
+import { Checkout } from './features/order/pages/checkout/checkout';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -62,6 +63,12 @@ export const routes: Routes = [
     {
         path: 'customer/restaurant/:id',
         component: RestaurantMenu,
+        canActivate: [roleGuard],
+        data: { role: UserRole.CUSTOMER }
+    },
+    {
+        path: 'checkout',
+        component: Checkout,
         canActivate: [roleGuard],
         data: { role: UserRole.CUSTOMER }
     }
