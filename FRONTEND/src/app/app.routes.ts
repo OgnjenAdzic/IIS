@@ -12,6 +12,9 @@ import { ManageRestaurant } from './features/restaurant/pages/manage-restaurant/
 import { CompleteProfile } from './features/stakeholders/pages/complete-profile/complete-profile';
 import { RestaurantMenu } from './features/restaurant/pages/restaurant-menu/restaurant-menu';
 import { Checkout } from './features/order/pages/checkout/checkout';
+import { OrderDetails } from './features/order/pages/order-details/order-details';
+import { OrderHistory } from './features/order/pages/order-history/order-history';
+import { ManageMenu } from './features/restaurant/pages/manage-menu/manage-menu';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -53,6 +56,12 @@ export const routes: Routes = [
         data: { role: UserRole.RESTAURANT_WORKER }
     },
     {
+        path: 'manage-menu/:id',
+        component: ManageMenu,       // Menu Page
+        canActivate: [roleGuard],
+        data: { role: UserRole.RESTAURANT_WORKER }
+    },
+    {
         path: 'complete-profile',
         component: CompleteProfile,
         canActivate: [roleGuard],
@@ -69,6 +78,18 @@ export const routes: Routes = [
     {
         path: 'checkout',
         component: Checkout,
+        canActivate: [roleGuard],
+        data: { role: UserRole.CUSTOMER }
+    },
+    {
+        path: 'orders',
+        component: OrderHistory,
+        canActivate: [roleGuard],
+        data: { role: UserRole.CUSTOMER }
+    },
+    {
+        path: 'orders/:id',
+        component: OrderDetails,
         canActivate: [roleGuard],
         data: { role: UserRole.CUSTOMER }
     }

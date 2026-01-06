@@ -29,6 +29,12 @@ service OrderService {
       body: "*"
     };
   }
+
+  rpc GetRestaurantOrders (GetRestaurantOrdersRequest) returns (GetOrdersResponse) {
+    option (google.api.http) = {
+      get: "/orders/restaurant/{restaurantId}"
+    };
+  }
 }
 
 enum OrderStatus {
@@ -64,6 +70,8 @@ message OrderResponse {
   repeated OrderItem items = 12;
   string createdAt = 13;
   bool isPriority = 14;
+
+  string estimatedDeliveryTime = 15;
 }
 
 message CreateOrderRequest {
@@ -87,4 +95,10 @@ message UpdateStatusRequest {
   string orderId = 1;
   OrderStatus status = 2;
   string deliveryPersonId = 3; 
+  int32 estimatedDeliveryMinutes = 4;
+}
+
+message GetRestaurantOrdersRequest {
+  string restaurantId = 1;
+  string status = 2; 
 }

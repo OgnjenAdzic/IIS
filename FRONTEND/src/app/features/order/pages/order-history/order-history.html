@@ -1,0 +1,41 @@
+<div class="min-h-screen bg-gray-50 py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Order History</h1>
+
+        @if (loading()) {
+        <div class="text-center py-10">Loading...</div>
+        }
+
+        @if (!loading() && sortedOrders().length === 0) {
+        <div class="text-center py-10 text-gray-500">
+            <p>You haven't placed any orders yet.</p>
+            <a routerLink="/customer" class="text-indigo-600 font-medium">Find a Restaurant</a>
+        </div>
+        }
+
+        <div class="space-y-4">
+            @for (order of sortedOrders(); track order.id) {
+            <div [routerLink]="['/orders', order.id]"
+                class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">{{ order.createdAt | date:'medium' }}</p>
+                        <h3 class="font-bold text-gray-900">Order #{{ order.id.substring(0,8) }}</h3>
+                        <p class="text-sm text-gray-600">{{ order.items.length }} Items</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase"
+                        [ngClass]="getStatusColor(order.status)">
+                        {{ order.status.replace('_', ' ') }}
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center border-t border-gray-100 pt-4">
+                    <span class="font-medium text-gray-900">{{ order.totalPrice }} RSD</span>
+                    <span class="text-indigo-600 text-sm font-medium">View Details →</span>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>

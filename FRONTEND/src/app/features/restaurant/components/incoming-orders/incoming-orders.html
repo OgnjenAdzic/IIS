@@ -1,0 +1,80 @@
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold text-gray-900">Incoming Orders</h3>
+        <button (click)="loadOrders()" class="text-indigo-600 hover:text-indigo-800 text-sm">↻ Refresh</button>
+    </div>
+
+    @for (order of orders(); track order.id) {
+
+    <!-- Only show active orders here (Pending/Preparing) -->
+    @if (order.status !== 'DELIVERED' && order.status !== 'CANCELLED') {
+
+    <div class="bg-white border rounded-lg shadow-sm p-4" [class.border-indigo-500]="order.status === 'PENDING'"
+        [class.border-l-4]="order.status === 'PENDING'">
+
+        <div class="flex justify-between items-start mb-3">
+            <div>
+                <span class="text-xs font-bold text-gray-500 uppercase">Order #{{ order.id.substring(0,8) }}</span>
+                <div class="text-sm text-gray-500">{{ order.createdAt | date:'shortTime' }}</div>
+            </div>
+            <span class="px-2 py-1 rounded text-xs font-bold" [ngClass]="{
+                            'bg-yellow-100 text-yellow-800': order.status === 'PENDING',
+                            'bg-blue-100 text-blue-800': order.status === 'PREPARING',
+                            'bg-green-100 text-green-800': order.status === 'READY_FOR_PICKUP'
+                          }">
+                {{ order.status }}
+            </span>
+        </div>
+
+        <!-- Items -->
+        <ul class="mb-4 text-sm space-y-1">
+            @for (item of order.items; track $index) {
+            <li class="flex justify-between">
+                <span><span class="font-bold">{{ item.quantity }}x</span> {{ item.name }}</span>
+            </li>
+            }
+        </ul>
+
+        <!-- ACTIONS -->
+        <div class="border-t pt-3 flex items-center justify-between gap-2">
+
+            <!-- PENDING: Accept/Decline -->
+            @if (order.status === 'PENDING') {
+            <div class="flex items-center gap-2">
+                <label class="text-xs text-gray-600">Prep (mins):</label>
+                <input type="number" [(ngModel)]="prepTimeInput[order.id]" placeholder="15" min="1"
+                    class="w-16 p-1 border rounded text-sm">
+            </div>
+            <div class="flex gap-2">
+                <button (click)="declineOrder(order.id)"
+                    class="px-3 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 text-sm font-medium">Reject</button>
+                <button (click)="acceptOrder(order.id)"
+                    class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium">Accept</button>
+            </div>
+            }
+
+            <!-- PREPARING: Mark Ready -->
+            @if (order.status === 'PREPARING') {
+            <div class="text-xs text-gray-500 italic">
+                Expected ready: {{ (order.estimatedDeliveryTime | date:'shortTime') || 'Unknown' }}
+            </div>
+            <button (click)="markReady(order.id)"
+                class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm font-medium">
+                Mark Ready for Pickup
+            </button>
+            }
+
+            <!-- READY: Waiting for Driver -->
+            @if (order.status === 'READY_FOR_PICKUP') {
+            <span class="text-sm text-gray-500 flex items-center gap-1">
+                <span class="animate-pulse w-2 h-2 bg-green-500 rounded-full"></span>
+                Waiting for driver...
+            </span>
+            }
+        </div>
+    </div>
+    }
+    } @empty {
+    <p class="text-gray-500 text-center py-4">No active orders.</p>
+    }
+</div>

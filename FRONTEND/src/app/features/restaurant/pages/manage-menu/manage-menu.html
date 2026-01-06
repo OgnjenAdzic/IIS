@@ -1,0 +1,26 @@
+<div class="max-w-4xl mx-auto py-8 px-4">
+    @if (restaurant) {
+
+    <!-- Header -->
+    <div class="flex justify-between items-end mb-8 border-b pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Menu Editor</h1>
+            <p class="text-gray-600">Add or edit items for {{ restaurant.name }}</p>
+        </div>
+
+        <!-- Switch Back to Operations -->
+        <button [routerLink]="['/manage-restaurant', restaurant.id]"
+            class="text-indigo-600 hover:text-indigo-800 font-medium">
+            ← Back to Operations
+        </button>
+    </div>
+
+    <div class="space-y-8">
+        <app-add-item-form (itemAdded)="handleItemAdded($event)"></app-add-item-form>
+
+        <app-menu-list [items]="restaurant.menu?.items || []" (priceUpdated)="handlePriceUpdate($event)"
+            (itemDeleted)="handleItemDelete($event)">
+        </app-menu-list>
+    </div>
+    }
+</div>

@@ -17,3 +17,27 @@
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
     background: #a5b4fc;
 }
+
+/* ... existing css ... */
+
+.card {
+    /* Ensure this is set so the absolute badge is positioned relative to the card */
+    position: relative;
+    /* existing styles... */
+    overflow: visible !important;
+    /* Allow badge to pop out */
+}
+
+/* Tailwind handles the animation, but if you aren't using tailwind for everything: */
+@keyframes ping {
+
+    75%,
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.animate-ping {
+    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}

@@ -1,32 +1,38 @@
-<div class="max-w-4xl mx-auto py-8 px-4">
-
-    <!-- 1. LOADING STATE (Show this when restaurant is null) -->
-    @if (!restaurant) {
-    <div class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-    </div>
-    }
-
-    <!-- 2. DATA LOADED (Only render this when restaurant exists) -->
+<div class="max-w-6xl mx-auto py-8 px-4">
     @if (restaurant) {
-    <!-- Header -->
-    <div class="mb-8 border-b pb-4">
-        <h1 class="text-3xl font-bold text-gray-900">Manage: {{ restaurant.name }}</h1>
-        <p class="text-gray-600">{{ restaurant.category }} | {{ restaurant.address }}</p>
+
+    <!-- Header with Navigation Switch -->
+    <div class="flex justify-between items-end mb-8 border-b pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Daily Operations</h1>
+            <p class="text-gray-600">Manage orders and open/close status</p>
+        </div>
+
+        <!-- Switch to Menu Page -->
+        <button [routerLink]="['/manage-menu', restaurant.id]"
+            class="text-indigo-600 hover:text-indigo-800 font-medium">
+            Go to Menu Editor →
+        </button>
     </div>
 
-    <!-- Status Toggle -->
-    <!-- This was causing the null error because it was likely outside the if block before -->
-    <app-status-toggle [isOpen]="restaurant.isOpen" (statusChanged)="handleStatusChange($event)">
-    </app-status-toggle>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-    <!-- Add Item -->
-    <app-add-item-form (itemAdded)="handleItemAdded($event)">
-    </app-add-item-form>
+        <!-- LEFT: Status & Info -->
+        <div class="lg:col-span-1 space-y-6">
+            <app-status-toggle [isOpen]="restaurant.isOpen" (statusChanged)="handleStatusChange($event)">
+            </app-status-toggle>
 
-    <!-- Menu List -->
-    <app-menu-list [items]="restaurant.menu?.items || []" (priceUpdated)="handlePriceUpdate($event)"
-        (itemDeleted)="handleItemDelete($event)">
-    </app-menu-list>
+            <div class="bg-white p-4 rounded-lg shadow-sm border">
+                <h3 class="font-bold text-gray-700">Details</h3>
+                <p class="text-sm text-gray-500 mt-2">{{ restaurant.name }}</p>
+                <p class="text-sm text-gray-500">{{ restaurant.address }}</p>
+            </div>
+        </div>
+
+        <!-- RIGHT: Orders -->
+        <div class="lg:col-span-2">
+            <app-incoming-orders [restaurantId]="restaurant.id"></app-incoming-orders>
+        </div>
+    </div>
     }
 </div>

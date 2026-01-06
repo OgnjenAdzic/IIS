@@ -141,23 +141,24 @@ func (x *OrderItem) GetQuantity() int32 {
 }
 
 type OrderResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RestaurantId     string                 `protobuf:"bytes,2,opt,name=restaurantId,proto3" json:"restaurantId,omitempty"`
-	CustomerId       string                 `protobuf:"bytes,3,opt,name=customerId,proto3" json:"customerId,omitempty"`
-	DeliveryPersonId string                 `protobuf:"bytes,4,opt,name=deliveryPersonId,proto3" json:"deliveryPersonId,omitempty"`
-	Status           string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	DeliveryAddress  string                 `protobuf:"bytes,6,opt,name=deliveryAddress,proto3" json:"deliveryAddress,omitempty"`
-	ItemsTotal       float64                `protobuf:"fixed64,7,opt,name=itemsTotal,proto3" json:"itemsTotal,omitempty"`
-	DeliveryFee      float64                `protobuf:"fixed64,8,opt,name=deliveryFee,proto3" json:"deliveryFee,omitempty"`
-	AppFee           float64                `protobuf:"fixed64,9,opt,name=appFee,proto3" json:"appFee,omitempty"`
-	SmallOrderFee    float64                `protobuf:"fixed64,10,opt,name=smallOrderFee,proto3" json:"smallOrderFee,omitempty"`
-	TotalPrice       float64                `protobuf:"fixed64,11,opt,name=totalPrice,proto3" json:"totalPrice,omitempty"`
-	Items            []*OrderItem           `protobuf:"bytes,12,rep,name=items,proto3" json:"items,omitempty"`
-	CreatedAt        string                 `protobuf:"bytes,13,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
-	IsPriority       bool                   `protobuf:"varint,14,opt,name=isPriority,proto3" json:"isPriority,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	RestaurantId          string                 `protobuf:"bytes,2,opt,name=restaurantId,proto3" json:"restaurantId,omitempty"`
+	CustomerId            string                 `protobuf:"bytes,3,opt,name=customerId,proto3" json:"customerId,omitempty"`
+	DeliveryPersonId      string                 `protobuf:"bytes,4,opt,name=deliveryPersonId,proto3" json:"deliveryPersonId,omitempty"`
+	Status                string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	DeliveryAddress       string                 `protobuf:"bytes,6,opt,name=deliveryAddress,proto3" json:"deliveryAddress,omitempty"`
+	ItemsTotal            float64                `protobuf:"fixed64,7,opt,name=itemsTotal,proto3" json:"itemsTotal,omitempty"`
+	DeliveryFee           float64                `protobuf:"fixed64,8,opt,name=deliveryFee,proto3" json:"deliveryFee,omitempty"`
+	AppFee                float64                `protobuf:"fixed64,9,opt,name=appFee,proto3" json:"appFee,omitempty"`
+	SmallOrderFee         float64                `protobuf:"fixed64,10,opt,name=smallOrderFee,proto3" json:"smallOrderFee,omitempty"`
+	TotalPrice            float64                `protobuf:"fixed64,11,opt,name=totalPrice,proto3" json:"totalPrice,omitempty"`
+	Items                 []*OrderItem           `protobuf:"bytes,12,rep,name=items,proto3" json:"items,omitempty"`
+	CreatedAt             string                 `protobuf:"bytes,13,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
+	IsPriority            bool                   `protobuf:"varint,14,opt,name=isPriority,proto3" json:"isPriority,omitempty"`
+	EstimatedDeliveryTime string                 `protobuf:"bytes,15,opt,name=estimatedDeliveryTime,proto3" json:"estimatedDeliveryTime,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *OrderResponse) Reset() {
@@ -286,6 +287,13 @@ func (x *OrderResponse) GetIsPriority() bool {
 		return x.IsPriority
 	}
 	return false
+}
+
+func (x *OrderResponse) GetEstimatedDeliveryTime() string {
+	if x != nil {
+		return x.EstimatedDeliveryTime
+	}
+	return ""
 }
 
 type CreateOrderRequest struct {
@@ -461,12 +469,13 @@ func (x *GetOrdersResponse) GetOrders() []*OrderResponse {
 }
 
 type UpdateStatusRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	OrderId          string                 `protobuf:"bytes,1,opt,name=orderId,proto3" json:"orderId,omitempty"`
-	Status           OrderStatus            `protobuf:"varint,2,opt,name=status,proto3,enum=order.OrderStatus" json:"status,omitempty"`
-	DeliveryPersonId string                 `protobuf:"bytes,3,opt,name=deliveryPersonId,proto3" json:"deliveryPersonId,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	OrderId                  string                 `protobuf:"bytes,1,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	Status                   OrderStatus            `protobuf:"varint,2,opt,name=status,proto3,enum=order.OrderStatus" json:"status,omitempty"`
+	DeliveryPersonId         string                 `protobuf:"bytes,3,opt,name=deliveryPersonId,proto3" json:"deliveryPersonId,omitempty"`
+	EstimatedDeliveryMinutes int32                  `protobuf:"varint,4,opt,name=estimatedDeliveryMinutes,proto3" json:"estimatedDeliveryMinutes,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *UpdateStatusRequest) Reset() {
@@ -520,6 +529,65 @@ func (x *UpdateStatusRequest) GetDeliveryPersonId() string {
 	return ""
 }
 
+func (x *UpdateStatusRequest) GetEstimatedDeliveryMinutes() int32 {
+	if x != nil {
+		return x.EstimatedDeliveryMinutes
+	}
+	return 0
+}
+
+type GetRestaurantOrdersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RestaurantId  string                 `protobuf:"bytes,1,opt,name=restaurantId,proto3" json:"restaurantId,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRestaurantOrdersRequest) Reset() {
+	*x = GetRestaurantOrdersRequest{}
+	mi := &file_order_proto_order_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRestaurantOrdersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRestaurantOrdersRequest) ProtoMessage() {}
+
+func (x *GetRestaurantOrdersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_order_proto_order_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRestaurantOrdersRequest.ProtoReflect.Descriptor instead.
+func (*GetRestaurantOrdersRequest) Descriptor() ([]byte, []int) {
+	return file_order_proto_order_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetRestaurantOrdersRequest) GetRestaurantId() string {
+	if x != nil {
+		return x.RestaurantId
+	}
+	return ""
+}
+
+func (x *GetRestaurantOrdersRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
 var File_order_proto_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_order_proto_rawDesc = "" +
@@ -528,7 +596,7 @@ const file_order_proto_order_proto_rawDesc = "" +
 	"\tOrderItem\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05price\x18\x02 \x01(\x01R\x05price\x12\x1a\n" +
-	"\bquantity\x18\x03 \x01(\x05R\bquantity\"\xd7\x03\n" +
+	"\bquantity\x18\x03 \x01(\x05R\bquantity\"\x8d\x04\n" +
 	"\rOrderResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\frestaurantId\x18\x02 \x01(\tR\frestaurantId\x12\x1e\n" +
@@ -552,7 +620,8 @@ const file_order_proto_order_proto_rawDesc = "" +
 	"\tcreatedAt\x18\r \x01(\tR\tcreatedAt\x12\x1e\n" +
 	"\n" +
 	"isPriority\x18\x0e \x01(\bR\n" +
-	"isPriority\"\xae\x01\n" +
+	"isPriority\x124\n" +
+	"\x15estimatedDeliveryTime\x18\x0f \x01(\tR\x15estimatedDeliveryTime\"\xae\x01\n" +
 	"\x12CreateOrderRequest\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\x12$\n" +
 	"\rcustomAddress\x18\x02 \x01(\tR\rcustomAddress\x12\x1c\n" +
@@ -565,22 +634,27 @@ const file_order_proto_order_proto_rawDesc = "" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
 	"\x04role\x18\x02 \x01(\tR\x04role\"A\n" +
 	"\x11GetOrdersResponse\x12,\n" +
-	"\x06orders\x18\x01 \x03(\v2\x14.order.OrderResponseR\x06orders\"\x87\x01\n" +
+	"\x06orders\x18\x01 \x03(\v2\x14.order.OrderResponseR\x06orders\"\xc3\x01\n" +
 	"\x13UpdateStatusRequest\x12\x18\n" +
 	"\aorderId\x18\x01 \x01(\tR\aorderId\x12*\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x12.order.OrderStatusR\x06status\x12*\n" +
-	"\x10deliveryPersonId\x18\x03 \x01(\tR\x10deliveryPersonId*n\n" +
+	"\x10deliveryPersonId\x18\x03 \x01(\tR\x10deliveryPersonId\x12:\n" +
+	"\x18estimatedDeliveryMinutes\x18\x04 \x01(\x05R\x18estimatedDeliveryMinutes\"X\n" +
+	"\x1aGetRestaurantOrdersRequest\x12\"\n" +
+	"\frestaurantId\x18\x01 \x01(\tR\frestaurantId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status*n\n" +
 	"\vOrderStatus\x12\v\n" +
 	"\aPENDING\x10\x00\x12\r\n" +
 	"\tPREPARING\x10\x01\x12\x14\n" +
 	"\x10READY_FOR_PICKUP\x10\x02\x12\x0f\n" +
 	"\vIN_DELIVERY\x10\x03\x12\r\n" +
 	"\tDELIVERED\x10\x04\x12\r\n" +
-	"\tCANCELLED\x10\x052\xa1\x02\n" +
+	"\tCANCELLED\x10\x052\xa0\x03\n" +
 	"\fOrderService\x12R\n" +
 	"\vCreateOrder\x12\x19.order.CreateOrderRequest\x1a\x14.order.OrderResponse\"\x12\x82\xd3\xe4\x93\x02\f:\x01*\"\a/orders\x12Q\n" +
 	"\vGetMyOrders\x12\x17.order.GetOrdersRequest\x1a\x18.order.GetOrdersResponse\"\x0f\x82\xd3\xe4\x93\x02\t\x12\a/orders\x12j\n" +
-	"\x11UpdateOrderStatus\x12\x1a.order.UpdateStatusRequest\x1a\x14.order.OrderResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/orders/{orderId}/statusB\x14Z\x12common/order/protob\x06proto3"
+	"\x11UpdateOrderStatus\x12\x1a.order.UpdateStatusRequest\x1a\x14.order.OrderResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/orders/{orderId}/status\x12}\n" +
+	"\x13GetRestaurantOrders\x12!.order.GetRestaurantOrdersRequest\x1a\x18.order.GetOrdersResponse\")\x82\xd3\xe4\x93\x02#\x12!/orders/restaurant/{restaurantId}B\x14Z\x12common/order/protob\x06proto3"
 
 var (
 	file_order_proto_order_proto_rawDescOnce sync.Once
@@ -595,15 +669,16 @@ func file_order_proto_order_proto_rawDescGZIP() []byte {
 }
 
 var file_order_proto_order_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_order_proto_order_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_order_proto_order_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_order_proto_order_proto_goTypes = []any{
-	(OrderStatus)(0),            // 0: order.OrderStatus
-	(*OrderItem)(nil),           // 1: order.OrderItem
-	(*OrderResponse)(nil),       // 2: order.OrderResponse
-	(*CreateOrderRequest)(nil),  // 3: order.CreateOrderRequest
-	(*GetOrdersRequest)(nil),    // 4: order.GetOrdersRequest
-	(*GetOrdersResponse)(nil),   // 5: order.GetOrdersResponse
-	(*UpdateStatusRequest)(nil), // 6: order.UpdateStatusRequest
+	(OrderStatus)(0),                   // 0: order.OrderStatus
+	(*OrderItem)(nil),                  // 1: order.OrderItem
+	(*OrderResponse)(nil),              // 2: order.OrderResponse
+	(*CreateOrderRequest)(nil),         // 3: order.CreateOrderRequest
+	(*GetOrdersRequest)(nil),           // 4: order.GetOrdersRequest
+	(*GetOrdersResponse)(nil),          // 5: order.GetOrdersResponse
+	(*UpdateStatusRequest)(nil),        // 6: order.UpdateStatusRequest
+	(*GetRestaurantOrdersRequest)(nil), // 7: order.GetRestaurantOrdersRequest
 }
 var file_order_proto_order_proto_depIdxs = []int32{
 	1, // 0: order.OrderResponse.items:type_name -> order.OrderItem
@@ -612,11 +687,13 @@ var file_order_proto_order_proto_depIdxs = []int32{
 	3, // 3: order.OrderService.CreateOrder:input_type -> order.CreateOrderRequest
 	4, // 4: order.OrderService.GetMyOrders:input_type -> order.GetOrdersRequest
 	6, // 5: order.OrderService.UpdateOrderStatus:input_type -> order.UpdateStatusRequest
-	2, // 6: order.OrderService.CreateOrder:output_type -> order.OrderResponse
-	5, // 7: order.OrderService.GetMyOrders:output_type -> order.GetOrdersResponse
-	2, // 8: order.OrderService.UpdateOrderStatus:output_type -> order.OrderResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
+	7, // 6: order.OrderService.GetRestaurantOrders:input_type -> order.GetRestaurantOrdersRequest
+	2, // 7: order.OrderService.CreateOrder:output_type -> order.OrderResponse
+	5, // 8: order.OrderService.GetMyOrders:output_type -> order.GetOrdersResponse
+	2, // 9: order.OrderService.UpdateOrderStatus:output_type -> order.OrderResponse
+	5, // 10: order.OrderService.GetRestaurantOrders:output_type -> order.GetOrdersResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -633,7 +710,7 @@ func file_order_proto_order_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_order_proto_order_proto_rawDesc), len(file_order_proto_order_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

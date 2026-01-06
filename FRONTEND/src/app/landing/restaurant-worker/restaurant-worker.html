@@ -1,5 +1,6 @@
 <div class="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
+
         <!-- Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">My Restaurants</h1>
@@ -20,6 +21,7 @@
 
         <!-- Restaurants Grid -->
         <div *ngIf="!loading && !error && restaurants.length > 0">
+
             <!-- Stats -->
             <div class="bg-white rounded-lg shadow p-4 mb-6">
                 <p class="text-gray-700">
@@ -28,29 +30,48 @@
             </div>
 
             <!-- Restaurant Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Increased gap to accommodate badges -->
+
                 <div *ngFor="let restaurant of restaurants"
-                    class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+                    class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200 relative group">
+
+                    <!-- NOTIFICATION BADGE (Red Circle) -->
+                    <!-- Note: Parent div must NOT have overflow-hidden -->
+                    @if (notificationCounts()[restaurant.id] > 0) {
+                    <div class="absolute -top-3 -right-3 flex h-8 w-8 z-20">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span
+                            class="relative inline-flex rounded-full h-8 w-8 bg-red-600 justify-center items-center text-white text-xs font-bold border-2 border-white shadow-md">
+                            {{ notificationCounts()[restaurant.id] }}
+                        </span>
+                    </div>
+                    }
 
                     <!-- Card Header -->
-                    <div class="p-6 border-b border-gray-200">
+                    <div class="p-6 border-b border-gray-200 rounded-t-lg">
                         <div class="flex justify-between items-start mb-2">
-                            <h2 class="text-xl font-bold text-gray-900">{{ restaurant.name }}</h2>
-                            <span [ngClass]="{
-                'bg-green-100 text-green-800': restaurant.isOpen,
-                'bg-red-100 text-red-800': !restaurant.isOpen
-              }" class="px-3 py-1 rounded-full text-sm font-semibold">
+                            <h2 class="text-xl font-bold text-gray-900 truncate pr-2">{{ restaurant.name }}</h2>
+
+                            <!-- Status Label -->
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex-shrink-0"
+                                [ngClass]="{
+                                    'bg-green-100 text-green-800': restaurant.isOpen,
+                                    'bg-red-100 text-red-800': !restaurant.isOpen
+                                }">
                                 {{ restaurant.isOpen ? 'Open' : 'Closed' }}
                             </span>
                         </div>
-                        <p class="text-gray-600 text-sm">{{ restaurant.category }}</p>
+                        <p class="text-gray-600 text-sm uppercase font-semibold tracking-wide">{{ restaurant.category }}
+                        </p>
                     </div>
 
                     <!-- Card Body -->
                     <div class="p-6 space-y-4">
                         <!-- Address -->
                         <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                            <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -58,57 +79,66 @@
                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             <div class="flex-1">
-                                <p class="text-sm text-gray-500 font-medium">Address</p>
-                                <p class="text-gray-900">{{ restaurant.address }}</p>
+                                <p class="text-xs text-gray-500 uppercase font-bold">Address</p>
+                                <p class="text-gray-900 text-sm line-clamp-2">{{ restaurant.address }}</p>
                             </div>
                         </div>
 
-                        <!-- Coordinates -->
+                        <!-- Location -->
                         <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                            <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                             </svg>
                             <div class="flex-1">
-                                <p class="text-sm text-gray-500 font-medium">Location</p>
-                                <p class="text-gray-900 text-sm">{{ restaurant.latitude }}, {{ restaurant.longitude }}
+                                <p class="text-xs text-gray-500 uppercase font-bold">Coordinates</p>
+                                <p class="text-gray-900 text-sm font-mono text-xs">
+                                    {{ restaurant.latitude | number:'1.4-4' }}, {{ restaurant.longitude | number:'1.4-4'
+                                    }}
                                 </p>
                             </div>
                         </div>
-
-                        <!-- Card Footer -->
-                        <div class="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-lg">
-                            <button [routerLink]="['/manage-restaurant', restaurant.id]"
-                                class="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Manage
-                            </button>
-                            <button [routerLink]="['/manage-restaurant', restaurant.id]"
-                                class="flex-1 bg-white hover:bg-gray-100 text-gray-900 font-semibold py-2 px-4 rounded-lg border-2 border-gray-900 transition-colors duration-200 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                                Menu
-                            </button>
-                        </div>
                     </div>
+
+                    <!-- Card Footer -->
+                    <div class="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-lg border-t border-gray-100">
+                        <button [routerLink]="['/manage-restaurant', restaurant.id]"
+                            class="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 relative">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Manage
+                            <!-- Tiny Red Dot inside button if urgent -->
+                            @if (notificationCounts()[restaurant.id] > 0) {
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                            }
+                        </button>
+
+                        <button [routerLink]="['/manage-menu', restaurant.id]"
+                            class="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 px-4 rounded-lg border border-gray-300 transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Menu
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
             <!-- Empty State -->
             <div *ngIf="!loading && !error && restaurants.length === 0"
-                class="max-w-2xl mx-auto bg-white rounded-lg shadow p-12 text-center">
-                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="max-w-md mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center mt-10">
+                <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
                 <h2 class="text-xl font-bold text-gray-900 mb-2">No Restaurants Found</h2>
-                <p class="text-gray-600">You don't have any restaurants assigned yet.</p>
+                <p class="text-gray-500">You haven't been assigned to any restaurants yet.</p>
             </div>
         </div>
     </div>
+</div>

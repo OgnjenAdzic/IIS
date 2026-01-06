@@ -158,9 +158,18 @@ func (s *OrderService) GetMyOrders(userId string) ([]models.Order, error) {
 	return s.repo.GetByCustomer(userId)
 }
 
+func (s *OrderService) GetOrdersByRestaurant(restaurantId string, status models.OrderStatus) ([]models.Order, error) {
+	return s.repo.GetByRestaurant(restaurantId, status)
+}
+
 // 3. UPDATE STATUS
-func (s *OrderService) UpdateStatus(orderId string, status models.OrderStatus, deliveryPersonId *string) (*models.Order, error) {
-	err := s.repo.UpdateStatus(orderId, status, deliveryPersonId)
+func (s *OrderService) UpdateStatus(orderId string, status models.OrderStatus, deliveryPersonId *string, prepMinutes int32) (*models.Order, error) {
+	var readyAt *time.Time
+	if prepMinutes > 0 {
+		t := time.Now().Add(time.Minute * time.Duration(prepMinutes))
+		readyAt = &t
+	}
+	err := s.repo.UpdateStatus(orderId, status, deliveryPersonId, readyAt)
 	if err != nil {
 		return nil, err
 	}

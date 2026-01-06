@@ -46,6 +46,8 @@ type Order struct {
 
 	CreatedAt   time.Time
 	DeliveredAt *time.Time
+
+	EstimatedReadyAt *time.Time
 }
 
 type OrderItem struct {

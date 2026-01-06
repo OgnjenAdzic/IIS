@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router'; // 1. Import Router
+import { ActivatedRoute, Router, RouterLink } from '@angular/router'; // 1. Import Router
 
 // Services
 import { RestaurantService } from '../../services/restaurant'; // Fix path if needed
@@ -9,13 +9,13 @@ import { UserRole } from '../../../../auth/model/auth';
 
 // Components
 import { AddItemForm } from '../../components/add-item-form/add-item-form';
-import { MenuList } from '../../components/menu-list/menu-list';
 import { StatusToggle } from '../../components/status-toggle/status-toggle';
+import { IncomingOrders } from '../../components/incoming-orders/incoming-orders';
 
 @Component({
   selector: 'app-manage-restaurant',
   standalone: true,
-  imports: [CommonModule, AddItemForm, MenuList, StatusToggle],
+  imports: [CommonModule, AddItemForm, StatusToggle, IncomingOrders, RouterLink],
   templateUrl: './manage-restaurant.html',
   styleUrl: './manage-restaurant.css',
 })
@@ -71,36 +71,6 @@ export class ManageRestaurant implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => alert("Error: You don't have permission to change status.")
-    });
-  }
-
-  handleItemAdded(data: { name: string, price: number }) {
-    this.restaurantService.addMenuItem(this.restaurantId, data.name, data.price)
-      .subscribe({
-        next: () => this.loadData(),
-        error: (err) => alert("Error: You don't have permission to add items.")
-      });
-  }
-
-  handlePriceUpdate(event: { id: string, price: number }) {
-    this.restaurantService.updateItemPrice(event.id, event.price).subscribe({
-      next: () => {
-        console.log('Price updated successfully');
-        this.cdr.detectChanges();
-      },
-      error: (err) => alert("Error updating price.")
-    });
-  }
-
-  handleItemDelete(itemId: string) {
-    this.restaurantService.deleteMenuItem(itemId).subscribe({
-      next: () => {
-        if (this.restaurant.menu && this.restaurant.menu.items) {
-          this.restaurant.menu.items = this.restaurant.menu.items.filter((i: any) => i.id !== itemId);
-          this.cdr.detectChanges();
-        }
-      },
-      error: (err) => alert("Error deleting item.")
     });
   }
 }

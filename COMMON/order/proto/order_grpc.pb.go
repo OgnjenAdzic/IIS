@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderService_CreateOrder_FullMethodName       = "/order.OrderService/CreateOrder"
-	OrderService_GetMyOrders_FullMethodName       = "/order.OrderService/GetMyOrders"
-	OrderService_UpdateOrderStatus_FullMethodName = "/order.OrderService/UpdateOrderStatus"
+	OrderService_CreateOrder_FullMethodName         = "/order.OrderService/CreateOrder"
+	OrderService_GetMyOrders_FullMethodName         = "/order.OrderService/GetMyOrders"
+	OrderService_UpdateOrderStatus_FullMethodName   = "/order.OrderService/UpdateOrderStatus"
+	OrderService_GetRestaurantOrders_FullMethodName = "/order.OrderService/GetRestaurantOrders"
 )
 
 // OrderServiceClient is the client API for OrderService service.
@@ -34,6 +35,7 @@ type OrderServiceClient interface {
 	GetMyOrders(ctx context.Context, in *GetOrdersRequest, opts ...grpc.CallOption) (*GetOrdersResponse, error)
 	// 3. Update Status (For Restaurant/Delivery)
 	UpdateOrderStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*OrderResponse, error)
+	GetRestaurantOrders(ctx context.Context, in *GetRestaurantOrdersRequest, opts ...grpc.CallOption) (*GetOrdersResponse, error)
 }
 
 type orderServiceClient struct {
@@ -74,6 +76,16 @@ func (c *orderServiceClient) UpdateOrderStatus(ctx context.Context, in *UpdateSt
 	return out, nil
 }
 
+func (c *orderServiceClient) GetRestaurantOrders(ctx context.Context, in *GetRestaurantOrdersRequest, opts ...grpc.CallOption) (*GetOrdersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrdersResponse)
+	err := c.cc.Invoke(ctx, OrderService_GetRestaurantOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
@@ -84,6 +96,7 @@ type OrderServiceServer interface {
 	GetMyOrders(context.Context, *GetOrdersRequest) (*GetOrdersResponse, error)
 	// 3. Update Status (For Restaurant/Delivery)
 	UpdateOrderStatus(context.Context, *UpdateStatusRequest) (*OrderResponse, error)
+	GetRestaurantOrders(context.Context, *GetRestaurantOrdersRequest) (*GetOrdersResponse, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -102,6 +115,9 @@ func (UnimplementedOrderServiceServer) GetMyOrders(context.Context, *GetOrdersRe
 }
 func (UnimplementedOrderServiceServer) UpdateOrderStatus(context.Context, *UpdateStatusRequest) (*OrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrderStatus not implemented")
+}
+func (UnimplementedOrderServiceServer) GetRestaurantOrders(context.Context, *GetRestaurantOrdersRequest) (*GetOrdersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRestaurantOrders not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 func (UnimplementedOrderServiceServer) testEmbeddedByValue()                      {}
@@ -178,6 +194,24 @@ func _OrderService_UpdateOrderStatus_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_GetRestaurantOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRestaurantOrdersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetRestaurantOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_GetRestaurantOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetRestaurantOrders(ctx, req.(*GetRestaurantOrdersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -196,6 +230,10 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateOrderStatus",
 			Handler:    _OrderService_UpdateOrderStatus_Handler,
+		},
+		{
+			MethodName: "GetRestaurantOrders",
+			Handler:    _OrderService_GetRestaurantOrders_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

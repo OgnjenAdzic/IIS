@@ -35,6 +35,12 @@
                         <p class="text-sm font-medium text-gray-900">{{ u.username }}</p>
                         <p class="text-xs text-gray-500">{{ u.role }}</p>
                     </div>
+                    <div *ngIf="user()?.role === Roles.CUSTOMER" class="flex items-center gap-4">
+                        <!-- Add this link -->
+                        <a routerLink="/orders" class="text-gray-500 hover:text-indigo-600 font-medium">My Orders</a>
+
+                        <!-- Existing Cart button... -->
+                    </div>
 
                     <!-- Profile Icon -->
                     <div
