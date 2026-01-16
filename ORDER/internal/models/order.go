@@ -47,7 +47,9 @@ type Order struct {
 	CreatedAt   time.Time
 	DeliveredAt *time.Time
 
-	EstimatedReadyAt *time.Time
+	FoodReadyAt      int `gorm:"default:0"`
+	DeliveryDuration int `gorm:"default:0"`
+	BiddingExpiresAt *time.Time
 }
 
 type OrderItem struct {

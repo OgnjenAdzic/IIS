@@ -67,10 +67,24 @@
                     <h2 class="text-xl font-semibold mb-4">Order Items</h2>
                     <ul class="divide-y divide-gray-200">
                         @for (item of cartItems(); track item.id) {
-                        <li class="py-4 flex justify-between">
+                        <li class="py-4 flex justify-between items-center">
                             <div>
                                 <p class="font-medium">{{ item.name }}</p>
-                                <p class="text-sm text-gray-500">x{{ item.quantity }}</p>
+                                <div class="flex items-center gap-2 text-sm text-gray-500">
+                                    <span>x{{ item.quantity }}</span>
+                                    <button (click)="cartService.updateQuantity(item.id, -1)"
+                                        class="px-3 py-1 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition-colors">
+                                        −
+                                    </button>
+                                    <!-- Remove Link -->
+                                    <button (click)="removeItem(item.id)" class="text-red-500 hover:underline text-xs">
+                                        Remove
+                                    </button>
+                                    <button (click)="cartService.updateQuantity(item.id, 1)"
+                                        class="px-3 py-1 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition-colors">
+                                        +
+                                    </button>
+                                </div>
                             </div>
                             <p class="font-medium">{{ item.price * item.quantity }} RSD</p>
                         </li>
@@ -149,7 +163,7 @@
                             <span class="text-lg font-bold text-gray-900">Total</span>
                             <div class="text-right">
                                 <span class="text-2xl font-extrabold text-indigo-600">
-                                    {{ loadingCosts() ? '...' : fees().grandTotal }} RSD
+                                    {{ loadingCosts() ? '...' : fees().grandTotal | number:'1.2-2' }} RSD
                                 </span>
                             </div>
                         </div>
@@ -157,7 +171,7 @@
 
                     <!-- Place Order Button -->
                     <button (click)="placeOrder()"
-                        [disabled]="loadingCosts() || (useCustomAddress() && !customAddress.lat)"
+                        [disabled]="loadingCosts() || cartItems().length === 0 || (useCustomAddress() && !customAddress.lat)"
                         class="w-full bg-black text-white py-4 rounded-lg font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                         Place Order
                     </button>

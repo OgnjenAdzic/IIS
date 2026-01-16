@@ -35,6 +35,26 @@ service OrderService {
       get: "/orders/restaurant/{restaurantId}"
     };
   }
+
+  rpc BidForOrder (BidRequest) returns (BidResponse) {
+    option (google.api.http) = {
+      post: "/orders/{orderId}/bid"
+      body: "*"
+    };
+  }
+  
+  // To show drivers available jobs
+  rpc GetAvailableOrders (GetAvailableOrdersRequest) returns (GetOrdersResponse) {
+    option (google.api.http) = {
+      get: "/orders/available"
+    };
+  }
+
+  rpc GetMyActiveJob (GetOrdersRequest) returns (OrderResponse) {
+    option (google.api.http) = {
+      get: "/orders/active"
+    };
+  }
 }
 
 enum OrderStatus {
@@ -71,7 +91,8 @@ message OrderResponse {
   string createdAt = 13;
   bool isPriority = 14;
 
-  string estimatedDeliveryTime = 15;
+  int32 preparingFoodDeliveryTime = 15;
+  int32 deliveryDurationTime = 16;
 }
 
 message CreateOrderRequest {
@@ -95,10 +116,24 @@ message UpdateStatusRequest {
   string orderId = 1;
   OrderStatus status = 2;
   string deliveryPersonId = 3; 
-  int32 estimatedDeliveryMinutes = 4;
+  int32 foodReadyAt = 4;
 }
 
 message GetRestaurantOrdersRequest {
   string restaurantId = 1;
   string status = 2; 
+}
+
+message BidRequest {
+  string orderId = 1;
+  string driverId = 2; 
+  int32 minutes = 3;
+}
+
+message BidResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetAvailableOrdersRequest {
 }

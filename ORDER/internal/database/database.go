@@ -42,7 +42,7 @@ func Connect() *gorm.DB {
 
 	log.Println("Running Auto Migrations...")
 	// Migrate the Pricing specific tables
-	err = db.AutoMigrate(&models.Order{}, &models.OrderItem{})
+	err = db.AutoMigrate(&models.Order{}, &models.OrderItem{}, &models.OrderBid{})
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}

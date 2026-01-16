@@ -31,7 +31,63 @@
                 }
             </div>
         </div>
+        @if (o.status !== 'DELIVERED' && o.status !== 'CANCELLED') {
+        <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-bold text-indigo-900 uppercase tracking-wide mb-3">Estimated Arrival</h3>
 
+            <div class="flex items-center justify-between">
+                <!-- 1. Restaurant Prep -->
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">Food Ready At</p>
+                    <p class="font-bold text-gray-900">
+                        {{ getReadyTime(o) | date:'shortTime' }}
+                    </p>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-gray-400">→</div>
+
+                <!-- 2. Delivery Drive -->
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">Driving</p>
+                    <p class="font-bold text-gray-900">
+                        @if (o.deliveryDurationTime) {
+                        {{ o.deliveryDurationTime }} min
+                        } @else {
+                        <span class="text-gray-400 italic">--</span>
+                        }
+                    </p>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-gray-400">→</div>
+
+                <!-- 3. Final ETA -->
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">At your door</p>
+                    <p class="font-bold text-xl text-indigo-700">
+                        <!-- ONLY SHOW TIME IF DRIVER IS ASSIGNED -->
+                        @if (o.deliveryDurationTime) {
+                        {{ getFinalETA(o) | date:'shortTime' }}
+                        } @else {
+                        <span class="text-lg text-gray-400 font-normal">--</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+            <!-- Explainer Text -->
+            @if (!o.deliveryDurationTime) {
+            <p class="text-xs text-center text-orange-600 mt-3 flex items-center justify-center gap-1">
+                <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Finding the fastest driver for you...
+            </p>
+            }
+        </div>
+        }
         <!-- RECEIPT -->
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">

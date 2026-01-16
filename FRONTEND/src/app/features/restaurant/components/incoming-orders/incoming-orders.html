@@ -56,7 +56,7 @@
             <!-- PREPARING: Mark Ready -->
             @if (order.status === 'PREPARING') {
             <div class="text-xs text-gray-500 italic">
-                Expected ready: {{ (order.estimatedDeliveryTime | date:'shortTime') || 'Unknown' }}
+                Expected ready: {{ getReadyTime(order) | date:'shortTime' }}
             </div>
             <button (click)="markReady(order.id)"
                 class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm font-medium">

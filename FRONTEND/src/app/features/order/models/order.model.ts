@@ -22,5 +22,6 @@ export interface Order {
     createdAt: string;
     isPriority: boolean;
 
-    estimatedDeliveryTime?: string; // New field for estimated delivery time
+    preparingFoodDeliveryTime?: number; // New field for estimated delivery time
+    deliveryDurationTime?: number;
 }

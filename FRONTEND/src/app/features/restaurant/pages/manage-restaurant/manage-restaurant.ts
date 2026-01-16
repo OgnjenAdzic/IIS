@@ -15,7 +15,7 @@ import { IncomingOrders } from '../../components/incoming-orders/incoming-orders
 @Component({
   selector: 'app-manage-restaurant',
   standalone: true,
-  imports: [CommonModule, AddItemForm, StatusToggle, IncomingOrders, RouterLink],
+  imports: [CommonModule, StatusToggle, IncomingOrders, RouterLink],
   templateUrl: './manage-restaurant.html',
   styleUrl: './manage-restaurant.css',
 })

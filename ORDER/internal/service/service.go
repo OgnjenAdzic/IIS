@@ -164,12 +164,7 @@ func (s *OrderService) GetOrdersByRestaurant(restaurantId string, status models.
 
 // 3. UPDATE STATUS
 func (s *OrderService) UpdateStatus(orderId string, status models.OrderStatus, deliveryPersonId *string, prepMinutes int32) (*models.Order, error) {
-	var readyAt *time.Time
-	if prepMinutes > 0 {
-		t := time.Now().Add(time.Minute * time.Duration(prepMinutes))
-		readyAt = &t
-	}
-	err := s.repo.UpdateStatus(orderId, status, deliveryPersonId, readyAt)
+	err := s.repo.UpdateStatus(orderId, status, deliveryPersonId, int(prepMinutes))
 	if err != nil {
 		return nil, err
 	}
@@ -181,4 +176,125 @@ func (s *OrderService) UpdateStatus(orderId string, status models.OrderStatus, d
 	}
 
 	return updatedOrder, nil
+}
+
+func (s *OrderService) PlaceBid(ctx context.Context, orderId string, driverId string, minutes int) error {
+	fmt.Println(">>> [SERVICE] Starting PlaceBid...")
+
+	// Check if driver is busy
+	existingJob, err := s.repo.GetActiveJobsForDriver(driverId)
+
+	// Stop if there is a DB error (that isn't "Record Not Found")
+	if err != nil {
+		fmt.Println(">>> [SERVICE] DB Error checking active job")
+		return err
+	}
+
+	// Now this check works correctly because repo returns nil
+	if existingJob != nil {
+		fmt.Println(">>> [SERVICE] Driver is busy!")
+		return errors.New("driver already has an active job")
+	}
+
+	fmt.Println(">>> [SERVICE] Driver is free. Getting Order...")
+
+	// 1. GET ORDER FRESH STATE
+	order, err := s.repo.GetById(orderId)
+	if err != nil {
+		return err
+	}
+
+	// 2. CHECK IF BIDDING IS EXPIRED
+	if order.BiddingExpiresAt != nil {
+		if time.Now().After(*order.BiddingExpiresAt) {
+			return errors.New("bidding window has closed")
+		}
+	}
+
+	// 4. Check Priority Constraint
+	if order.IsPriority {
+		deliveryPersonProto, err := s.stakeClient.GetDeliveryPerson(ctx, &pbStake.GetRequest{UserId: driverId})
+		if err != nil {
+			fmt.Println(">>> [SERVICE] Failed to get Driver Profile")
+			return errors.New("delivery person not found")
+		}
+
+		fmt.Printf(">>> [SERVICE] Driver Vehicle: %v\n", deliveryPersonProto.Vehicle)
+		if deliveryPersonProto.Vehicle != pbStake.VehicleType_CAR {
+			fmt.Println(">>> [SERVICE] Priority Blocked: Not a car")
+			return errors.New("priority orders require a car")
+		}
+	}
+
+	// 3. IF FIRST BID -> START TIMER
+	if order.BiddingExpiresAt == nil {
+		fmt.Printf(">>> [BID] First bid received for %s. Starting 30s timer.\n", orderId)
+
+		// Calculate expiration
+		expiresAt := time.Now().Add(45 * time.Second)
+
+		// Save Expiration to DB (So it persists if server crashes)
+		err = s.repo.SetBiddingExpiration(orderId, expiresAt)
+		if err != nil {
+			return err
+		}
+
+		// Fire the background goroutine
+		go func() {
+			time.Sleep(5 * time.Second)
+			// Trigger the winner logic
+			// We can reuse the background worker logic or call a helper here
+			// But relying on the Background Worker (Step 4) is safer!
+		}()
+	}
+
+	// 4. SAVE BID
+	bid := &models.OrderBid{
+		OrderId:  uuid.MustParse(orderId),
+		DriverId: uuid.MustParse(driverId),
+		Minutes:  minutes,
+	}
+	return s.repo.CreateBid(bid)
+}
+
+func (s *OrderService) StartBidProcessingLoop() {
+	fmt.Println(">>> [WORKER] Background Bid Processor Started...")
+
+	go func() {
+		for {
+			// 1. Run every 10 seconds
+			time.Sleep(10 * time.Second)
+
+			// 2. Find orders stuck in "PREPARING" without a driver
+			orders, err := s.repo.GetOrdersReadyForAssignment()
+			if err != nil {
+				fmt.Printf(">>> [WORKER] Error checking orders: %v\n", err)
+				continue
+			}
+
+			// 3. Process each one
+			for _, o := range orders {
+				fmt.Printf(">>> [WORKER] Picking winner for expired order %s\n", o.Id)
+
+				winner, err := s.repo.PickWinner(o.Id.String())
+				if err != nil {
+					// No bids yet? Ignore and try again next loop.
+					continue
+				}
+
+				// Assign
+				err = s.repo.AssignDriver(o.Id.String(), winner.DriverId.String(), winner.Minutes)
+				if err == nil {
+					fmt.Printf(">>> [WORKER] WINNER ASSIGNED: Driver %s (%d minutes) for Order %s\n", winner.DriverId, winner.Minutes, o.Id)
+				}
+			}
+		}
+	}()
+}
+func (s *OrderService) GetAvailableOrders() ([]models.Order, error) {
+	return s.repo.GetAvailableOrders()
+}
+
+func (s *OrderService) GetActiveJob(driverId string) (*models.Order, error) {
+	return s.repo.GetActiveJobsForDriver(driverId)
 }

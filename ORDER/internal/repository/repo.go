@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+	"fmt"
 	"order/internal/models"
 	"time"
 
@@ -31,7 +33,7 @@ func (r *OrderRepository) GetByCustomer(userId string) ([]models.Order, error) {
 	return orders, err
 }
 
-func (r *OrderRepository) UpdateStatus(orderId string, status models.OrderStatus, deliveryPersonId *string, readyAt *time.Time) error {
+func (r *OrderRepository) UpdateStatus(orderId string, status models.OrderStatus, deliveryPersonId *string, readyAt int) error {
 	updates := map[string]interface{}{"status": status}
 
 	if status == models.StatusDelivered {
@@ -40,8 +42,8 @@ func (r *OrderRepository) UpdateStatus(orderId string, status models.OrderStatus
 	if deliveryPersonId != nil {
 		updates["delivery_person_id"] = *deliveryPersonId
 	}
-	if readyAt != nil {
-		updates["estimated_ready_at"] = *readyAt
+	if readyAt > 0 {
+		updates["food_ready_at"] = readyAt
 	}
 
 	return r.DB.Model(&models.Order{}).Where("id = ?", orderId).Updates(updates).Error
@@ -56,5 +58,80 @@ func (r *OrderRepository) GetByRestaurant(restaurantId string, status models.Ord
 	}
 
 	err := query.Order("created_at desc").Find(&orders).Error
+	return orders, err
+}
+
+func (r *OrderRepository) GetAvailableOrders() ([]models.Order, error) {
+	var orders []models.Order
+	err := r.DB.Preload("Items").
+		Where("status IN ? AND delivery_person_id IS NULL", []string{string(models.StatusPreparing), string(models.StatusReady)}).
+		Order("created_at desc").
+		Find(&orders).Error
+	return orders, err
+}
+
+func (r *OrderRepository) CreateBid(bid *models.OrderBid) error {
+	fmt.Println(">>> [REPO] Executing INSERT...")
+	result := r.DB.Create(bid)
+	if result.Error != nil {
+		fmt.Printf(">>> [REPO] DB Error: %v\n", result.Error)
+		return result.Error
+	}
+	fmt.Printf(">>> [REPO] Inserted. Rows affected: %d\n", result.RowsAffected)
+	return nil
+}
+
+func (r *OrderRepository) PickWinner(orderId string) (*models.OrderBid, error) {
+	var winner models.OrderBid
+	err := r.DB.Where("order_id = ?", orderId).
+		Order("minutes asc, id asc").
+		First(&winner).Error
+	return &winner, err
+}
+
+func (r *OrderRepository) AssignDriver(orderId string, driverId string, minutes int) error {
+	return r.DB.Model(&models.Order{}).
+		Where("id = ?", orderId).
+		Updates(map[string]interface{}{
+			"delivery_person_id": driverId,
+			"delivery_duration":  minutes,
+		}).Error
+}
+
+func (r *OrderRepository) GetActiveJobsForDriver(driverId string) (*models.Order, error) {
+	var order models.Order
+	err := r.DB.Preload("Items").
+		Where("delivery_person_id = ? AND status IN ?", driverId, []string{string(models.StatusPreparing), string(models.StatusReady), string(models.StatusInDelivery)}).
+		First(&order).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil // Return nil so Service knows driver is free
+	}
+
+	return &order, err
+}
+
+func (r *OrderRepository) SetBiddingExpiration(orderId string, expiresAt time.Time) error {
+	return r.DB.Model(&models.Order{}).Where("id = ?", orderId).Update("bidding_expires_at", expiresAt).Error
+}
+
+// Updated logic to find orders ready for assignment
+func (r *OrderRepository) GetOrdersReadyForAssignment() ([]models.Order, error) {
+	var orders []models.Order
+
+	// Logic:
+	// 1. Status is PREPARING or READY
+	// 2. Driver is NOT assigned yet
+	// 3. BiddingExpiresAt IS NOT NULL (meaning at least one bid happened)
+	// 4. BiddingExpiresAt < NOW (meaning time is up)
+
+	now := time.Now()
+
+	err := r.DB.Where(
+		"status IN ? AND delivery_person_id IS NULL AND bidding_expires_at IS NOT NULL AND bidding_expires_at < ?",
+		[]string{"PREPARING", "READY_FOR_PICKUP"},
+		now,
+	).Find(&orders).Error
+
 	return orders, err
 }

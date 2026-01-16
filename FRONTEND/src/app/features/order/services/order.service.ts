@@ -33,12 +33,24 @@ export class OrderService {
     return this.http.get<{ orders: Order[] }>(url);
   }
 
-  updateStatus(orderId: string, status: string, estimatedDeliveryMinutes: number = 0) {
+  updateStatus(orderId: string, status: string, foodReadyAt: number = 0) {
     return this.http.put(`${this.apiUrl}/${orderId}/status`, {
       orderId,
       status,
-      estimatedDeliveryMinutes
+      foodReadyAt
     });
+  }
+
+  getAvailableOrders() {
+    return this.http.get<{ orders: Order[] }>(`${this.apiUrl}/available`);
+  }
+  bidForOrder(orderId: string, minutes: number) {
+    return this.http.post<{ success: boolean, message: string }>(`${this.apiUrl}/${orderId}/bid`, {
+      orderId, minutes
+    });
+  }
+  getActiveJob() {
+    return this.http.get<Order>(`${this.apiUrl}/active`);
   }
 }
 

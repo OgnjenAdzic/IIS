@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, signal, effect, untracked, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -19,7 +19,7 @@ import { RestaurantService } from '../../../restaurant/services/restaurant';
   templateUrl: './checkout.html',
   styleUrl: './checkout.css'
 })
-export class Checkout implements OnInit {
+export class Checkout implements OnInit, OnDestroy {
   // Injections
   cartService = inject(CartService);
   stakeholdersService = inject(Stakeholders);
@@ -33,6 +33,8 @@ export class Checkout implements OnInit {
   // State
   cartItems = this.cartService.cartItems;
   cartTotal = this.cartService.totalPrice; // Items Subtotal
+
+  private refreshInterval: any;
 
   // Address State
   useCustomAddress = signal<boolean>(false);
@@ -82,6 +84,21 @@ export class Checkout implements OnInit {
         this.recalculateCosts();
       }
     });
+
+    this.refreshInterval = setInterval(() => {
+      // Only recalculate if we have the necessary data
+      if (this.restaurantLocation && this.cartItems().length > 0) {
+        console.log("Auto-refreshing prices...");
+        // Pass 'true' to a modified recalculate function to hide the spinner
+        this.recalculateCosts();
+      }
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
   }
 
   // --- ADDRESS SEARCH (Reuse Logic) ---
@@ -106,6 +123,25 @@ export class Checkout implements OnInit {
   togglePriority() {
     this.isPriority.update(v => !v);
     this.recalculateCosts();
+  }
+
+  removeItem(itemId: string) {
+    this.cartService.removeFromCart(itemId);
+  }
+
+  constructor() {
+    effect(() => {
+      const items = this.cartItems();
+      untracked(() => {
+        if (items.length === 0) {
+          this.router.navigate(['/customer']);
+          return;
+        } else if (this.restaurantLocation) {
+          this.recalculateCosts();
+        }
+      });
+
+    });
   }
 
   // --- THE CORE CALCULATION LOGIC ---

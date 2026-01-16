@@ -23,6 +23,9 @@ const (
 	OrderService_GetMyOrders_FullMethodName         = "/order.OrderService/GetMyOrders"
 	OrderService_UpdateOrderStatus_FullMethodName   = "/order.OrderService/UpdateOrderStatus"
 	OrderService_GetRestaurantOrders_FullMethodName = "/order.OrderService/GetRestaurantOrders"
+	OrderService_BidForOrder_FullMethodName         = "/order.OrderService/BidForOrder"
+	OrderService_GetAvailableOrders_FullMethodName  = "/order.OrderService/GetAvailableOrders"
+	OrderService_GetMyActiveJob_FullMethodName      = "/order.OrderService/GetMyActiveJob"
 )
 
 // OrderServiceClient is the client API for OrderService service.
@@ -36,6 +39,10 @@ type OrderServiceClient interface {
 	// 3. Update Status (For Restaurant/Delivery)
 	UpdateOrderStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 	GetRestaurantOrders(ctx context.Context, in *GetRestaurantOrdersRequest, opts ...grpc.CallOption) (*GetOrdersResponse, error)
+	BidForOrder(ctx context.Context, in *BidRequest, opts ...grpc.CallOption) (*BidResponse, error)
+	// To show drivers available jobs
+	GetAvailableOrders(ctx context.Context, in *GetAvailableOrdersRequest, opts ...grpc.CallOption) (*GetOrdersResponse, error)
+	GetMyActiveJob(ctx context.Context, in *GetOrdersRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 }
 
 type orderServiceClient struct {
@@ -86,6 +93,36 @@ func (c *orderServiceClient) GetRestaurantOrders(ctx context.Context, in *GetRes
 	return out, nil
 }
 
+func (c *orderServiceClient) BidForOrder(ctx context.Context, in *BidRequest, opts ...grpc.CallOption) (*BidResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BidResponse)
+	err := c.cc.Invoke(ctx, OrderService_BidForOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) GetAvailableOrders(ctx context.Context, in *GetAvailableOrdersRequest, opts ...grpc.CallOption) (*GetOrdersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrdersResponse)
+	err := c.cc.Invoke(ctx, OrderService_GetAvailableOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) GetMyActiveJob(ctx context.Context, in *GetOrdersRequest, opts ...grpc.CallOption) (*OrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrderResponse)
+	err := c.cc.Invoke(ctx, OrderService_GetMyActiveJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
@@ -97,6 +134,10 @@ type OrderServiceServer interface {
 	// 3. Update Status (For Restaurant/Delivery)
 	UpdateOrderStatus(context.Context, *UpdateStatusRequest) (*OrderResponse, error)
 	GetRestaurantOrders(context.Context, *GetRestaurantOrdersRequest) (*GetOrdersResponse, error)
+	BidForOrder(context.Context, *BidRequest) (*BidResponse, error)
+	// To show drivers available jobs
+	GetAvailableOrders(context.Context, *GetAvailableOrdersRequest) (*GetOrdersResponse, error)
+	GetMyActiveJob(context.Context, *GetOrdersRequest) (*OrderResponse, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -118,6 +159,15 @@ func (UnimplementedOrderServiceServer) UpdateOrderStatus(context.Context, *Updat
 }
 func (UnimplementedOrderServiceServer) GetRestaurantOrders(context.Context, *GetRestaurantOrdersRequest) (*GetOrdersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRestaurantOrders not implemented")
+}
+func (UnimplementedOrderServiceServer) BidForOrder(context.Context, *BidRequest) (*BidResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BidForOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) GetAvailableOrders(context.Context, *GetAvailableOrdersRequest) (*GetOrdersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableOrders not implemented")
+}
+func (UnimplementedOrderServiceServer) GetMyActiveJob(context.Context, *GetOrdersRequest) (*OrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyActiveJob not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 func (UnimplementedOrderServiceServer) testEmbeddedByValue()                      {}
@@ -212,6 +262,60 @@ func _OrderService_GetRestaurantOrders_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_BidForOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BidRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).BidForOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_BidForOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).BidForOrder(ctx, req.(*BidRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_GetAvailableOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvailableOrdersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetAvailableOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_GetAvailableOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetAvailableOrders(ctx, req.(*GetAvailableOrdersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_GetMyActiveJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrdersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetMyActiveJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_GetMyActiveJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetMyActiveJob(ctx, req.(*GetOrdersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -234,6 +338,18 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRestaurantOrders",
 			Handler:    _OrderService_GetRestaurantOrders_Handler,
+		},
+		{
+			MethodName: "BidForOrder",
+			Handler:    _OrderService_BidForOrder_Handler,
+		},
+		{
+			MethodName: "GetAvailableOrders",
+			Handler:    _OrderService_GetAvailableOrders_Handler,
+		},
+		{
+			MethodName: "GetMyActiveJob",
+			Handler:    _OrderService_GetMyActiveJob_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

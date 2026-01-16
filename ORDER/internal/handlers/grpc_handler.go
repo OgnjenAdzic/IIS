@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"order/internal/models"
 	"order/internal/service"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -160,20 +161,69 @@ func (h *OrderHandler) UpdateOrderStatus(ctx context.Context, req *pb.UpdateStat
 		deliveryPersonId = &req.DeliveryPersonId
 	}
 
-	fmt.Printf(">>> [DEBUG] Request Minutes: %d\n", req.EstimatedDeliveryMinutes) // DEBUG 1
+	fmt.Printf(">>> [DEBUG] Request Minutes: %d\n", req.FoodReadyAt) // DEBUG 1
 
-	order, err := h.service.UpdateStatus(req.OrderId, statusStr, deliveryPersonId, req.EstimatedDeliveryMinutes)
+	order, err := h.service.UpdateStatus(req.OrderId, statusStr, deliveryPersonId, req.FoodReadyAt)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Update failed")
 	}
 
-	fmt.Printf(">>> [DEBUG] DB Object Time: %v\n", order.EstimatedReadyAt) // DEBUG 2
+	fmt.Printf(">>> [DEBUG] DB Object Time: %v\n", order.FoodReadyAt) // DEBUG 2
 
 	response := mapToProto(order)
 
-	fmt.Printf(">>> [DEBUG] Proto Response Time: %s\n", response.EstimatedDeliveryTime) // DEBUG 3
+	fmt.Printf(">>> [DEBUG] Proto Response Time: %d\n", response.PreparingFoodDeliveryTime) // DEBUG 3
 
 	return response, nil
+}
+
+func (h *OrderHandler) BidForOrder(ctx context.Context, req *pb.BidRequest) (*pb.BidResponse, error) {
+	driverId, err := getUserID(ctx) // From Token
+	if err != nil {
+		fmt.Println(">>> [DEBUG Bid] Error :", err)
+		return nil, err
+
+	}
+	fmt.Println(">>> [DEBUG Bid] Driver ID:", driverId)
+
+	err = h.service.PlaceBid(ctx, req.OrderId, driverId, int(req.Minutes))
+	if err != nil {
+		return &pb.BidResponse{Success: false, Message: "Failed to bid"}, nil
+	}
+	return &pb.BidResponse{Success: true, Message: "Bid placed"}, nil
+}
+
+func (h *OrderHandler) GetAvailableOrders(ctx context.Context, _ *pb.GetAvailableOrdersRequest) (*pb.GetOrdersResponse, error) {
+	orders, err := h.service.GetAvailableOrders()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed")
+	}
+
+	var protoOrders []*pb.OrderResponse
+	for _, o := range orders {
+		protoOrders = append(protoOrders, mapToProto(&o))
+	}
+	return &pb.GetOrdersResponse{Orders: protoOrders}, nil
+}
+
+func (h *OrderHandler) GetMyActiveJob(ctx context.Context, _ *pb.GetOrdersRequest) (*pb.OrderResponse, error) {
+	driverId, err := getUserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(">>> [DEBUG Active Jobs] Fetching active job for driver ID:", driverId) // DEBUG
+
+	order, err := h.service.GetActiveJob(driverId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to get active job")
+	}
+
+	if order == nil {
+		return nil, status.Error(codes.NotFound, "No active job found")
+	}
+
+	return mapToProto(order), nil
 }
 
 // MAPPER
@@ -192,33 +242,22 @@ func mapToProto(o *models.Order) *pb.OrderResponse {
 		dId = o.DeliveryPersonId.String()
 	}
 
-	estTime := ""
-	if o.EstimatedReadyAt != nil {
-		estTime = o.EstimatedReadyAt.Format("2006-01-02T15:04:05Z07:00") // ISO 8601
-	}
-
-	// DEBUG HERE
-	if o.EstimatedReadyAt != nil {
-		fmt.Println(">>> [DEBUG MAPPER] Found time:", estTime)
-	} else {
-		fmt.Println(">>> [DEBUG MAPPER] Time is nil")
-	}
-
 	return &pb.OrderResponse{
-		Id:                    o.Id.String(),
-		RestaurantId:          o.RestaurantId.String(),
-		CustomerId:            o.CustomerId.String(),
-		DeliveryPersonId:      dId,
-		Status:                string(o.Status),
-		DeliveryAddress:       o.DeliveryAddress,
-		ItemsTotal:            o.ItemsTotal,
-		DeliveryFee:           o.DeliveryFee,
-		AppFee:                o.AppFee,
-		SmallOrderFee:         o.SmallOrderFee,
-		TotalPrice:            o.TotalPrice,
-		Items:                 items,
-		CreatedAt:             o.CreatedAt.Format("2006-01-02 15:04:05"),
-		IsPriority:            o.IsPriority,
-		EstimatedDeliveryTime: estTime,
+		Id:                        o.Id.String(),
+		RestaurantId:              o.RestaurantId.String(),
+		CustomerId:                o.CustomerId.String(),
+		DeliveryPersonId:          dId,
+		Status:                    string(o.Status),
+		DeliveryAddress:           o.DeliveryAddress,
+		ItemsTotal:                o.ItemsTotal,
+		DeliveryFee:               o.DeliveryFee,
+		AppFee:                    o.AppFee,
+		SmallOrderFee:             o.SmallOrderFee,
+		TotalPrice:                o.TotalPrice,
+		Items:                     items,
+		CreatedAt:                 o.CreatedAt.Format(time.RFC3339),
+		IsPriority:                o.IsPriority,
+		PreparingFoodDeliveryTime: int32(o.FoodReadyAt),
+		DeliveryDurationTime:      int32(o.DeliveryDuration),
 	}
 }

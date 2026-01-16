@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviorment';
 import { FeeConfig } from '../models/analysis.model';
@@ -9,6 +9,13 @@ import { FeeConfig } from '../models/analysis.model';
 export class AnalysisService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/analysis`;
+
+  analysisUpdated = signal<number>(0);
+
+  notifyChange() {
+    console.log("Broadcasting Analysis Change...");
+    this.analysisUpdated.update(v => v + 1);
+  }
 
   getConfig() {
     return this.http.get<FeeConfig>(`${this.apiUrl}/config`);

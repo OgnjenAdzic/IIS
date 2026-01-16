@@ -66,9 +66,11 @@ export class CartService {
 
   // 3. REMOVE (DELETE)
   removeFromCart(itemId: string) {
-    // Note: itemId here is the CART_ITEM_ID (from backend), not Menu ID
     this.http.delete<CartResponse>(`${this.apiUrl}/items/${itemId}`).subscribe({
-      next: (res) => this.cartItems.set(res.items)
+      next: (res) => {
+        this.cartItems.set(res.items || []);
+
+      }
     });
   }
 

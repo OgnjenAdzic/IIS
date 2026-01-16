@@ -24,9 +24,25 @@ export class IncomingOrders implements OnInit {
 
   loadOrders() {
     this.orderService.getRestaurantOrders(this.restaurantId).subscribe({
-      next: (res) => { this.orders.set(res.orders || []), console.log(res.orders); },
+      next: (res) => {
+        this.orders.set(res.orders || []), console.log(res.orders);
+
+      },
       error: (err) => { console.error("Failed to load orders", err); }
     });
+  }
+
+  getReadyTime(order: any): Date {
+    if (!order.createdAt) return new Date();
+
+    // 1. Parse the created date
+    const created = new Date(order.createdAt);
+
+    // 2. Get minutes (default to 0 if missing)
+    const minutesToAdd = order.preparingFoodDeliveryTime || 0;
+
+    // 3. Add minutes (Minutes * 60 seconds * 1000 milliseconds)
+    return new Date(created.getTime() + (minutesToAdd * 60 * 1000));
   }
 
   acceptOrder(orderId: string) {

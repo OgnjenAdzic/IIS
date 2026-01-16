@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, ChangeDetectorRef, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/service/auth';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -13,7 +13,7 @@ import { AnalysisService } from '../../features/analysis/services/analysis.servi
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
-export class Admin {
+export class Admin implements OnInit {
   authService = inject(AuthService);
   pricingService = inject(PricingService);
   analysisService = inject(AnalysisService);
@@ -84,6 +84,7 @@ export class Admin {
     this.pricingService.updateStatus(newStatus, this.status.isBadWeather).subscribe({
       next: () => {
         this.cdr.detectChanges();
+        this.pricingService.notifyChange();
       },
       error: () => this.status.isRushHour = !newStatus // Revert on error
     });
@@ -96,6 +97,7 @@ export class Admin {
     this.pricingService.updateStatus(this.status.isRushHour, newStatus).subscribe({
       next: () => {
         this.cdr.detectChanges();
+        this.pricingService.notifyChange();
       },
       error: () => this.status.isBadWeather = !newStatus
     });
@@ -109,6 +111,7 @@ export class Admin {
         next: () => {
           this.showSuccess('Pricing rules updated successfully!');
           this.cdr.detectChanges();
+          this.pricingService.notifyChange();
         },
         error: (err) => alert('Failed to update rules')
       });
@@ -121,6 +124,7 @@ export class Admin {
         next: () => {
           this.showSuccess('Financial config updated!');
           this.cdr.detectChanges();
+          this.pricingService.notifyChange();
         },
         error: () => alert('Failed to update analysis config')
       });

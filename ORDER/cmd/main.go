@@ -88,6 +88,8 @@ func main() {
 
 	orderHandler := handler.NewOrderHandler(orderService)
 
+	orderService.StartBidProcessingLoop()
+
 	// 5. SERVER
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
