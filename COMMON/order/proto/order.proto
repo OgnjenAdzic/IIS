@@ -93,6 +93,8 @@ message OrderResponse {
 
   int32 preparingFoodDeliveryTime = 15;
   int32 deliveryDurationTime = 16;
+
+  bool hasDriverBid = 17;
 }
 
 message CreateOrderRequest {
@@ -136,4 +138,5 @@ message BidResponse {
 }
 
 message GetAvailableOrdersRequest {
+  string driverId = 1;
 }

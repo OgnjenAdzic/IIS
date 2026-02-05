@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviorment';
-import { FeeConfig } from '../models/analysis.model';
+import { FeeConfig, ProfitLogItem } from '../models/analysis.model';
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +27,9 @@ export class AnalysisService {
 
   calculateFees(itemsTotal: number, deliveryPrice: number) {
     return this.http.post<any>(`${this.apiUrl}/calculate`, { itemsTotal, deliveryPrice });
+  }
+
+  getHistory() {
+    return this.http.get<{ logs: ProfitLogItem[] }>(`${this.apiUrl}/history`);
   }
 }

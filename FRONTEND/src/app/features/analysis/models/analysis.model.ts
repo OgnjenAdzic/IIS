@@ -7,3 +7,14 @@ export interface FeeConfig {
     smallOrderThreshold: number;
     smallOrderFee: number;
 }
+
+export interface ProfitLogItem {
+    orderId: string;
+    restaurantId: string;
+    appFee: number;
+    smallOrderFee: number;
+    profitFromItems: number;
+    profitFromDelivery: number;
+    totalProfit: number;
+    createdAt: string;
+}

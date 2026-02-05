@@ -15,9 +15,11 @@ func NewAnalysisService(repo *repository.AnalysisRepository) *AnalysisService {
 }
 
 type FeeResult struct {
-	AppFee          float64
-	SmallOrderFee   float64
-	EstimatedProfit float64
+	AppFee             float64
+	SmallOrderFee      float64
+	ProfitFromItems    float64 // Added
+	ProfitFromDelivery float64 // Added
+	EstimatedProfit    float64
 }
 
 func (s *AnalysisService) CalculateFees(itemsTotal, deliveryPrice float64) (*FeeResult, error) {
@@ -40,9 +42,11 @@ func (s *AnalysisService) CalculateFees(itemsTotal, deliveryPrice float64) (*Fee
 	totalProfit := profitItems + profitDelivery + appFee + smallOrderFee
 
 	return &FeeResult{
-		AppFee:          math.Round(appFee*100) / 100,
-		SmallOrderFee:   smallOrderFee,
-		EstimatedProfit: math.Round(totalProfit*100) / 100,
+		AppFee:             math.Round(appFee*100) / 100,
+		SmallOrderFee:      smallOrderFee,
+		ProfitFromItems:    math.Round(profitItems*100) / 100,    // Return this
+		ProfitFromDelivery: math.Round(profitDelivery*100) / 100, // Return this
+		EstimatedProfit:    math.Round(totalProfit*100) / 100,
 	}, nil
 }
 
@@ -62,6 +66,10 @@ type AnalyticsResult struct {
 
 func (s *AnalysisService) RecordProfit(req models.OrderProfitLog) error {
 	return s.repo.SaveProfitLog(&req)
+}
+
+func (s *AnalysisService) GetHistory() ([]models.OrderProfitLog, error) {
+	return s.repo.GetProfitHistory()
 }
 
 func (s *AnalysisService) GetAnalytics() (*AnalyticsResult, error) {

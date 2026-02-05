@@ -50,6 +50,8 @@ type Order struct {
 	FoodReadyAt      int `gorm:"default:0"`
 	DeliveryDuration int `gorm:"default:0"`
 	BiddingExpiresAt *time.Time
+
+	HasCurrentDriverBidded bool `gorm:"-"`
 }
 
 type OrderItem struct {

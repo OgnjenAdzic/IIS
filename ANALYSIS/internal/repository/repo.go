@@ -91,3 +91,10 @@ func (r *AnalysisRepository) GetTopUsers(limit int) ([]AggregatedResult, error) 
 		Scan(&results).Error
 	return results, err
 }
+
+func (r *AnalysisRepository) GetProfitHistory() ([]models.OrderProfitLog, error) {
+	var logs []models.OrderProfitLog
+	// Fetch all logs, newest first
+	err := r.DB.Order("created_at desc").Find(&logs).Error
+	return logs, err
+}

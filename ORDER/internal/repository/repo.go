@@ -6,6 +6,7 @@ import (
 	"order/internal/models"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -61,12 +62,31 @@ func (r *OrderRepository) GetByRestaurant(restaurantId string, status models.Ord
 	return orders, err
 }
 
-func (r *OrderRepository) GetAvailableOrders() ([]models.Order, error) {
+func (r *OrderRepository) GetAvailableOrders(driverId string) ([]models.Order, error) {
 	var orders []models.Order
 	err := r.DB.Preload("Items").
 		Where("status IN ? AND delivery_person_id IS NULL", []string{string(models.StatusPreparing), string(models.StatusReady)}).
 		Order("created_at desc").
 		Find(&orders).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var biddedOrdersIds []uuid.UUID
+	r.DB.Model(&models.OrderBid{}).
+		Where("driver_id = ?", driverId).
+		Pluck("order_id", &biddedOrdersIds)
+
+	bidMap := make(map[uuid.UUID]bool)
+	for _, id := range biddedOrdersIds {
+		bidMap[id] = true
+	}
+
+	for i := range orders {
+		if bidMap[orders[i].Id] {
+			orders[i].HasCurrentDriverBidded = true
+		}
+	}
 	return orders, err
 }
 
@@ -81,21 +101,28 @@ func (r *OrderRepository) CreateBid(bid *models.OrderBid) error {
 	return nil
 }
 
-func (r *OrderRepository) PickWinner(orderId string) (*models.OrderBid, error) {
-	var winner models.OrderBid
+func (r *OrderRepository) GetSortedBids(orderId string) ([]models.OrderBid, error) {
+	var bids []models.OrderBid
 	err := r.DB.Where("order_id = ?", orderId).
 		Order("minutes asc, id asc").
-		First(&winner).Error
-	return &winner, err
+		Find(&bids).Error
+	return bids, err
 }
 
 func (r *OrderRepository) AssignDriver(orderId string, driverId string, minutes int) error {
-	return r.DB.Model(&models.Order{}).
-		Where("id = ?", orderId).
+	result := r.DB.Model(&models.Order{}).
+		Where("id = ? AND delivery_person_id IS NULL", orderId).
 		Updates(map[string]interface{}{
 			"delivery_person_id": driverId,
 			"delivery_duration":  minutes,
-		}).Error
+		})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("order already assigned")
+	}
+	return nil
 }
 
 func (r *OrderRepository) GetActiveJobsForDriver(driverId string) (*models.Order, error) {
@@ -109,6 +136,17 @@ func (r *OrderRepository) GetActiveJobsForDriver(driverId string) (*models.Order
 	}
 
 	return &order, err
+}
+
+func (r *OrderRepository) HasDriverBid(orderId, driverId string) (bool, error) {
+	var count int64
+	err := r.DB.Model(&models.OrderBid{}).
+		Where("order_id = ? AND driver_id = ?", orderId, driverId).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (r *OrderRepository) SetBiddingExpiration(orderId string, expiresAt time.Time) error {
@@ -125,7 +163,7 @@ func (r *OrderRepository) GetOrdersReadyForAssignment() ([]models.Order, error) 
 	// 3. BiddingExpiresAt IS NOT NULL (meaning at least one bid happened)
 	// 4. BiddingExpiresAt < NOW (meaning time is up)
 
-	now := time.Now()
+	now := time.Now().UTC()
 
 	err := r.DB.Where(
 		"status IN ? AND delivery_person_id IS NULL AND bidding_expires_at IS NOT NULL AND bidding_expires_at < ?",

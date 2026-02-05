@@ -15,6 +15,7 @@ import { Checkout } from './features/order/pages/checkout/checkout';
 import { OrderDetails } from './features/order/pages/order-details/order-details';
 import { OrderHistory } from './features/order/pages/order-history/order-history';
 import { ManageMenu } from './features/restaurant/pages/manage-menu/manage-menu';
+import { ProfitHistoryComponent } from './features/analysis/pages/profit-history/profit-history';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -92,6 +93,12 @@ export const routes: Routes = [
         component: OrderDetails,
         canActivate: [roleGuard],
         data: { role: UserRole.CUSTOMER }
+    },
+    {
+        path: 'admin/analytics/history',
+        component: ProfitHistoryComponent,
+        canActivate: [roleGuard],
+        data: { role: UserRole.ADMIN }
     }
 
 ];

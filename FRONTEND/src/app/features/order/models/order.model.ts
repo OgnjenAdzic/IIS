@@ -17,6 +17,9 @@ export interface Order {
     appFee: number;
     smallOrderFee: number;
     totalPrice: number;
+    ProfitFromItems: number;
+    ProfitFromDelivery: number;
+    TotalProfit: number;
 
     items: OrderItem[];
     createdAt: string;
@@ -24,4 +27,5 @@ export interface Order {
 
     preparingFoodDeliveryTime?: number; // New field for estimated delivery time
     deliveryDurationTime?: number;
+    hasDriverBid: boolean;
 }

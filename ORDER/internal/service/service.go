@@ -128,8 +128,8 @@ func (s *OrderService) CreateOrder(ctx context.Context, userId string, customAdd
 		SmallOrderFee:      feesRes.SmallOrderFee,
 		TotalPrice:         totalPrice,
 		IsPriority:         isPriority,
-		ProfitFromItems:    0,
-		ProfitFromDelivery: 0,
+		ProfitFromItems:    feesRes.ProfitFromItems,
+		ProfitFromDelivery: feesRes.ProfitFromDelivery,
 		TotalProfit:        feesRes.EstimatedProfit,
 		CreatedAt:          time.Now(),
 	}
@@ -174,6 +174,26 @@ func (s *OrderService) UpdateStatus(orderId string, status models.OrderStatus, d
 	if err != nil {
 		return nil, err
 	}
+	if status == models.StatusDelivered {
+		fmt.Printf(">>> [ORDER] Order %s delivered. Recording profit...\n", orderId)
+
+		_, err := s.analysisClient.RecordOrderProfit(context.Background(), &pbAnalysis.RecordProfitRequest{
+			OrderId:            updatedOrder.Id.String(),
+			RestaurantId:       updatedOrder.RestaurantId.String(),
+			UserId:             updatedOrder.CustomerId.String(),
+			AppFee:             updatedOrder.AppFee,
+			SmallOrderFee:      updatedOrder.SmallOrderFee,
+			ProfitFromItems:    updatedOrder.ProfitFromItems,    // Ensure these are calculated
+			ProfitFromDelivery: updatedOrder.ProfitFromDelivery, // Ensure these are calculated
+			TotalProfit:        updatedOrder.TotalProfit,
+		})
+
+		if err != nil {
+			fmt.Printf(">>> [ERROR] Could not record profit for analysis: %v\n", err)
+		} else {
+			fmt.Println(">>> [ORDER] Profit recorded successfully.")
+		}
+	}
 
 	return updatedOrder, nil
 }
@@ -181,6 +201,16 @@ func (s *OrderService) UpdateStatus(orderId string, status models.OrderStatus, d
 func (s *OrderService) PlaceBid(ctx context.Context, orderId string, driverId string, minutes int) error {
 	fmt.Println(">>> [SERVICE] Starting PlaceBid...")
 
+	// check if driver already bid
+	alreadyBid, err := s.repo.HasDriverBid(driverId, orderId)
+	if err != nil {
+		fmt.Println(">>> [SERVICE] DB Error checking existing bid")
+		return err
+	}
+	if alreadyBid {
+		fmt.Println(">>> [SERVICE] Driver has already placed a bid!")
+		return errors.New("driver has already placed a bid on this order")
+	}
 	// Check if driver is busy
 	existingJob, err := s.repo.GetActiveJobsForDriver(driverId)
 
@@ -231,21 +261,17 @@ func (s *OrderService) PlaceBid(ctx context.Context, orderId string, driverId st
 		fmt.Printf(">>> [BID] First bid received for %s. Starting 30s timer.\n", orderId)
 
 		// Calculate expiration
-		expiresAt := time.Now().Add(45 * time.Second)
+		expiresAt := time.Now().UTC().Add(45 * time.Second)
 
 		// Save Expiration to DB (So it persists if server crashes)
 		err = s.repo.SetBiddingExpiration(orderId, expiresAt)
 		if err != nil {
 			return err
 		}
-
-		// Fire the background goroutine
-		go func() {
-			time.Sleep(5 * time.Second)
-			// Trigger the winner logic
-			// We can reuse the background worker logic or call a helper here
-			// But relying on the Background Worker (Step 4) is safer!
-		}()
+	} else {
+		if time.Now().UTC().After(*order.BiddingExpiresAt) {
+			return errors.New("bidding window has closed")
+		}
 	}
 
 	// 4. SAVE BID
@@ -254,7 +280,11 @@ func (s *OrderService) PlaceBid(ctx context.Context, orderId string, driverId st
 		DriverId: uuid.MustParse(driverId),
 		Minutes:  minutes,
 	}
-	return s.repo.CreateBid(bid)
+	err = s.repo.CreateBid(bid)
+	if err != nil {
+		return errors.New("you have already placed a bid on this order")
+	}
+	return nil
 }
 
 func (s *OrderService) StartBidProcessingLoop() {
@@ -274,27 +304,47 @@ func (s *OrderService) StartBidProcessingLoop() {
 
 			// 3. Process each one
 			for _, o := range orders {
-				fmt.Printf(">>> [WORKER] Picking winner for expired order %s\n", o.Id)
-
-				winner, err := s.repo.PickWinner(o.Id.String())
-				if err != nil {
-					// No bids yet? Ignore and try again next loop.
-					continue
-				}
-
-				// Assign
-				err = s.repo.AssignDriver(o.Id.String(), winner.DriverId.String(), winner.Minutes)
-				if err == nil {
-					fmt.Printf(">>> [WORKER] WINNER ASSIGNED: Driver %s (%d minutes) for Order %s\n", winner.DriverId, winner.Minutes, o.Id)
-				}
+				s.SelectAndAssignWinner(o.Id.String())
 			}
 		}
 	}()
 }
-func (s *OrderService) GetAvailableOrders() ([]models.Order, error) {
-	return s.repo.GetAvailableOrders()
+func (s *OrderService) GetAvailableOrders(driverId string) ([]models.Order, error) {
+	return s.repo.GetAvailableOrders(driverId)
 }
 
 func (s *OrderService) GetActiveJob(driverId string) (*models.Order, error) {
 	return s.repo.GetActiveJobsForDriver(driverId)
+}
+
+// Helper function to process the winner logic safely
+func (s *OrderService) SelectAndAssignWinner(orderId string) {
+	fmt.Printf(">>> [LOGIC] Selecting winner for order %s\n", orderId)
+
+	// 1. Get ALL candidates, sorted by best time
+	bids, err := s.repo.GetSortedBids(orderId)
+	if err != nil || len(bids) == 0 {
+		fmt.Printf(">>> [LOGIC] No bids found for order %s\n", orderId)
+		return
+	}
+
+	// 2. Iterate through candidates (Best -> Worst)
+	for _, bid := range bids {
+		driverId := bid.DriverId.String()
+
+		activeJob, err := s.repo.GetActiveJobsForDriver(driverId)
+
+		if err == nil && activeJob == nil {
+			err = s.repo.AssignDriver(orderId, driverId, bid.Minutes)
+			if err == nil {
+				fmt.Printf(">>> [LOGIC] WINNER FOUND: Driver %s (Bid: %d mins)\n", driverId, bid.Minutes)
+				return // Stop looking, job done.
+			} else {
+				fmt.Printf(">>> [LOGIC] Error assigning driver %s: %v. Trying next candidate...\n", driverId, err)
+			}
+		} else {
+			fmt.Printf(">>> [LOGIC] Driver %s is BUSY (Won another order). Skipping...\n", driverId)
+		}
+	}
+
 }

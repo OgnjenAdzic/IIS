@@ -25,7 +25,7 @@
                 </div>
                 <div class="text-right">
                     <p class="text-xs uppercase text-indigo-300 font-bold tracking-wider">Earnings</p>
-                    <p class="font-medium text-lg mt-1 text-green-300">{{ job.deliveryFee }} RSD</p>
+                    <p class="font-medium text-lg mt-1 text-green-300">{{ calculateEarnings(job.deliveryFee) }} RSD</p>
                 </div>
             </div>
 
@@ -43,9 +43,12 @@
                         </svg>
                         <span>Waiting for Restaurant...</span>
                     </div>
-                    <p class="text-sm font-medium">
+                    <p class="text-center text-xs mt-2 text-indigo-200">
                         Food ready at approx:
-                        <span class="text-white">{{ job.estimatedDeliveryTime | date:'shortTime' }}</span>
+                        <!-- CALL THE FUNCTION HERE -->
+                        <span class="text-white font-bold">
+                            {{ getReadyTime(job) | date:'shortTime' }}
+                        </span>
                     </p>
                 </div>
                 }
@@ -123,20 +126,39 @@
                 <div class="mt-auto border-t border-gray-100 pt-4">
                     <div class="flex justify-between items-center mb-4 text-sm">
                         <span class="text-gray-600 font-medium">Earnings</span>
-                        <span class="font-bold text-green-600 text-lg">{{ order.deliveryFee }} RSD</span>
+                        <span class="font-bold text-green-600 text-lg">{{ calculateEarnings(order.deliveryFee) }}
+                            RSD</span>
                     </div>
 
-                    <div class="flex gap-2">
-                        <div class="relative w-24">
+                    <div class="flex gap-2 h-10 items-center">
+
+                        <!-- STATE 1: ALREADY BID -->
+                        @if (order.hasDriverBid) {
+                        <div
+                            class="w-full bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm font-bold flex items-center justify-center gap-2 h-full">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Bid Placed
+                        </div>
+                        }
+
+                        <!-- STATE 2: CAN BID -->
+                        @else {
+                        <!-- Input Field -->
+                        <div class="relative w-24 h-full">
                             <input type="number" [(ngModel)]="bidInputs[order.id]" placeholder="Mins" min="1"
-                                class="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:ring-black focus:border-black">
-                            <span class="absolute right-2 top-2 text-xs text-gray-400 font-medium">min</span>
+                                class="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:ring-black focus:border-black h-full">
+                            <span class="absolute right-2 top-2.5 text-xs text-gray-400 font-medium">min</span>
                         </div>
 
-                        <button (click)="placeBid(order)"
-                            class="flex-1 bg-black hover:bg-gray-800 text-white py-2 rounded-lg text-sm font-bold transition-colors shadow-sm">
+                        <!-- Bid Button -->
+                        <button (click)="placeBid(order)" [disabled]="!bidInputs[order.id] || bidInputs[order.id] <= 0"
+                            class="flex-1 bg-black hover:bg-gray-800 text-white py-2 rounded-lg text-sm font-bold transition-colors shadow-sm h-full disabled:bg-gray-400 disabled:cursor-not-allowed">
                             Place Bid
                         </button>
+                        }
                     </div>
                 </div>
             </div>

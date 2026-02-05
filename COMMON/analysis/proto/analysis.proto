@@ -40,6 +40,12 @@ service AnalysisService {
       get: "/analysis/analytics"
     };
   }
+
+  rpc GetProfitHistory (GetHistoryRequest) returns (HistoryResponse) {
+    option (google.api.http) = {
+      get: "/analysis/history"
+    };
+  }
 }
 
 // MESSAGES
@@ -52,7 +58,9 @@ message CalculationRequest {
 message FeeResponse {
   double appFee = 1;
   double smallOrderFee = 2;
-  double estimatedProfit = 3;        
+  double estimatedProfit = 3;  
+  double profitFromItems = 4;    // NEW
+  double profitFromDelivery = 5; // NEW      
 }
 
 message UpdateConfigRequest {
@@ -104,3 +112,20 @@ message AnalyticsResponse {
 }
 
 message GetAnalyticsRequest {}
+
+message GetHistoryRequest {}
+
+message ProfitLogItem {
+  string orderId = 1;
+  string restaurantId = 2;
+  double appFee = 3;
+  double smallOrderFee = 4;
+  double profitFromItems = 5;
+  double profitFromDelivery = 6;
+  double totalProfit = 7;
+  string createdAt = 8;
+}
+
+message HistoryResponse {
+  repeated ProfitLogItem logs = 1;
+}

@@ -75,12 +75,14 @@ func (x *CalculationRequest) GetDeliveryPrice() float64 {
 }
 
 type FeeResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	AppFee          float64                `protobuf:"fixed64,1,opt,name=appFee,proto3" json:"appFee,omitempty"`
-	SmallOrderFee   float64                `protobuf:"fixed64,2,opt,name=smallOrderFee,proto3" json:"smallOrderFee,omitempty"`
-	EstimatedProfit float64                `protobuf:"fixed64,3,opt,name=estimatedProfit,proto3" json:"estimatedProfit,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	AppFee             float64                `protobuf:"fixed64,1,opt,name=appFee,proto3" json:"appFee,omitempty"`
+	SmallOrderFee      float64                `protobuf:"fixed64,2,opt,name=smallOrderFee,proto3" json:"smallOrderFee,omitempty"`
+	EstimatedProfit    float64                `protobuf:"fixed64,3,opt,name=estimatedProfit,proto3" json:"estimatedProfit,omitempty"`
+	ProfitFromItems    float64                `protobuf:"fixed64,4,opt,name=profitFromItems,proto3" json:"profitFromItems,omitempty"`       // NEW
+	ProfitFromDelivery float64                `protobuf:"fixed64,5,opt,name=profitFromDelivery,proto3" json:"profitFromDelivery,omitempty"` // NEW
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *FeeResponse) Reset() {
@@ -130,6 +132,20 @@ func (x *FeeResponse) GetSmallOrderFee() float64 {
 func (x *FeeResponse) GetEstimatedProfit() float64 {
 	if x != nil {
 		return x.EstimatedProfit
+	}
+	return 0
+}
+
+func (x *FeeResponse) GetProfitFromItems() float64 {
+	if x != nil {
+		return x.ProfitFromItems
+	}
+	return 0
+}
+
+func (x *FeeResponse) GetProfitFromDelivery() float64 {
+	if x != nil {
+		return x.ProfitFromDelivery
 	}
 	return 0
 }
@@ -646,6 +662,186 @@ func (*GetAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_analysis_proto_analysis_proto_rawDescGZIP(), []int{9}
 }
 
+type GetHistoryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetHistoryRequest) Reset() {
+	*x = GetHistoryRequest{}
+	mi := &file_analysis_proto_analysis_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetHistoryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetHistoryRequest) ProtoMessage() {}
+
+func (x *GetHistoryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_analysis_proto_analysis_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetHistoryRequest.ProtoReflect.Descriptor instead.
+func (*GetHistoryRequest) Descriptor() ([]byte, []int) {
+	return file_analysis_proto_analysis_proto_rawDescGZIP(), []int{10}
+}
+
+type ProfitLogItem struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	OrderId            string                 `protobuf:"bytes,1,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	RestaurantId       string                 `protobuf:"bytes,2,opt,name=restaurantId,proto3" json:"restaurantId,omitempty"`
+	AppFee             float64                `protobuf:"fixed64,3,opt,name=appFee,proto3" json:"appFee,omitempty"`
+	SmallOrderFee      float64                `protobuf:"fixed64,4,opt,name=smallOrderFee,proto3" json:"smallOrderFee,omitempty"`
+	ProfitFromItems    float64                `protobuf:"fixed64,5,opt,name=profitFromItems,proto3" json:"profitFromItems,omitempty"`
+	ProfitFromDelivery float64                `protobuf:"fixed64,6,opt,name=profitFromDelivery,proto3" json:"profitFromDelivery,omitempty"`
+	TotalProfit        float64                `protobuf:"fixed64,7,opt,name=totalProfit,proto3" json:"totalProfit,omitempty"`
+	CreatedAt          string                 `protobuf:"bytes,8,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ProfitLogItem) Reset() {
+	*x = ProfitLogItem{}
+	mi := &file_analysis_proto_analysis_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProfitLogItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProfitLogItem) ProtoMessage() {}
+
+func (x *ProfitLogItem) ProtoReflect() protoreflect.Message {
+	mi := &file_analysis_proto_analysis_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProfitLogItem.ProtoReflect.Descriptor instead.
+func (*ProfitLogItem) Descriptor() ([]byte, []int) {
+	return file_analysis_proto_analysis_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ProfitLogItem) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *ProfitLogItem) GetRestaurantId() string {
+	if x != nil {
+		return x.RestaurantId
+	}
+	return ""
+}
+
+func (x *ProfitLogItem) GetAppFee() float64 {
+	if x != nil {
+		return x.AppFee
+	}
+	return 0
+}
+
+func (x *ProfitLogItem) GetSmallOrderFee() float64 {
+	if x != nil {
+		return x.SmallOrderFee
+	}
+	return 0
+}
+
+func (x *ProfitLogItem) GetProfitFromItems() float64 {
+	if x != nil {
+		return x.ProfitFromItems
+	}
+	return 0
+}
+
+func (x *ProfitLogItem) GetProfitFromDelivery() float64 {
+	if x != nil {
+		return x.ProfitFromDelivery
+	}
+	return 0
+}
+
+func (x *ProfitLogItem) GetTotalProfit() float64 {
+	if x != nil {
+		return x.TotalProfit
+	}
+	return 0
+}
+
+func (x *ProfitLogItem) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+type HistoryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Logs          []*ProfitLogItem       `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HistoryResponse) Reset() {
+	*x = HistoryResponse{}
+	mi := &file_analysis_proto_analysis_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HistoryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HistoryResponse) ProtoMessage() {}
+
+func (x *HistoryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_analysis_proto_analysis_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HistoryResponse.ProtoReflect.Descriptor instead.
+func (*HistoryResponse) Descriptor() ([]byte, []int) {
+	return file_analysis_proto_analysis_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *HistoryResponse) GetLogs() []*ProfitLogItem {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
 var File_analysis_proto_analysis_proto protoreflect.FileDescriptor
 
 const file_analysis_proto_analysis_proto_rawDesc = "" +
@@ -655,11 +851,13 @@ const file_analysis_proto_analysis_proto_rawDesc = "" +
 	"\n" +
 	"itemsTotal\x18\x01 \x01(\x01R\n" +
 	"itemsTotal\x12$\n" +
-	"\rdeliveryPrice\x18\x02 \x01(\x01R\rdeliveryPrice\"u\n" +
+	"\rdeliveryPrice\x18\x02 \x01(\x01R\rdeliveryPrice\"\xcf\x01\n" +
 	"\vFeeResponse\x12\x16\n" +
 	"\x06appFee\x18\x01 \x01(\x01R\x06appFee\x12$\n" +
 	"\rsmallOrderFee\x18\x02 \x01(\x01R\rsmallOrderFee\x12(\n" +
-	"\x0festimatedProfit\x18\x03 \x01(\x01R\x0festimatedProfit\"\x99\x02\n" +
+	"\x0festimatedProfit\x18\x03 \x01(\x01R\x0festimatedProfit\x12(\n" +
+	"\x0fprofitFromItems\x18\x04 \x01(\x01R\x0fprofitFromItems\x12.\n" +
+	"\x12profitFromDelivery\x18\x05 \x01(\x01R\x12profitFromDelivery\"\x99\x02\n" +
 	"\x13UpdateConfigRequest\x12.\n" +
 	"\x12itemRevenuePercent\x18\x01 \x01(\x01R\x12itemRevenuePercent\x126\n" +
 	"\x16deliveryRevenuePercent\x18\x02 \x01(\x01R\x16deliveryRevenuePercent\x12$\n" +
@@ -695,13 +893,26 @@ const file_analysis_proto_analysis_proto_rawDesc = "" +
 	"\ftotalRevenue\x18\x01 \x01(\x01R\ftotalRevenue\x12;\n" +
 	"\x0etopRestaurants\x18\x02 \x03(\v2\x13.analysis.TopEntityR\x0etopRestaurants\x12/\n" +
 	"\btopUsers\x18\x03 \x03(\v2\x13.analysis.TopEntityR\btopUsers\"\x15\n" +
-	"\x13GetAnalyticsRequest2\xab\x04\n" +
+	"\x13GetAnalyticsRequest\"\x13\n" +
+	"\x11GetHistoryRequest\"\xa5\x02\n" +
+	"\rProfitLogItem\x12\x18\n" +
+	"\aorderId\x18\x01 \x01(\tR\aorderId\x12\"\n" +
+	"\frestaurantId\x18\x02 \x01(\tR\frestaurantId\x12\x16\n" +
+	"\x06appFee\x18\x03 \x01(\x01R\x06appFee\x12$\n" +
+	"\rsmallOrderFee\x18\x04 \x01(\x01R\rsmallOrderFee\x12(\n" +
+	"\x0fprofitFromItems\x18\x05 \x01(\x01R\x0fprofitFromItems\x12.\n" +
+	"\x12profitFromDelivery\x18\x06 \x01(\x01R\x12profitFromDelivery\x12 \n" +
+	"\vtotalProfit\x18\a \x01(\x01R\vtotalProfit\x12\x1c\n" +
+	"\tcreatedAt\x18\b \x01(\tR\tcreatedAt\">\n" +
+	"\x0fHistoryResponse\x12+\n" +
+	"\x04logs\x18\x01 \x03(\v2\x17.analysis.ProfitLogItemR\x04logs2\x92\x05\n" +
 	"\x0fAnalysisService\x12d\n" +
 	"\rCalculateFees\x12\x1c.analysis.CalculationRequest\x1a\x15.analysis.FeeResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/analysis/calculate\x12q\n" +
 	"\x16UpdateFeeConfiguration\x12\x1d.analysis.UpdateConfigRequest\x1a\x1b.analysis.FeeConfigResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/analysis/config\x12e\n" +
 	"\x10GetCurrentConfig\x12\x1a.analysis.GetConfigRequest\x1a\x1b.analysis.FeeConfigResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/analysis/config\x12o\n" +
 	"\x11RecordOrderProfit\x12\x1d.analysis.RecordProfitRequest\x1a\x1e.analysis.RecordProfitResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/analysis/record\x12g\n" +
-	"\fGetAnalytics\x12\x1d.analysis.GetAnalyticsRequest\x1a\x1b.analysis.AnalyticsResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/analysis/analyticsB\x17Z\x15common/analysis/protob\x06proto3"
+	"\fGetAnalytics\x12\x1d.analysis.GetAnalyticsRequest\x1a\x1b.analysis.AnalyticsResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/analysis/analytics\x12e\n" +
+	"\x10GetProfitHistory\x12\x1b.analysis.GetHistoryRequest\x1a\x19.analysis.HistoryResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/analysis/historyB\x17Z\x15common/analysis/protob\x06proto3"
 
 var (
 	file_analysis_proto_analysis_proto_rawDescOnce sync.Once
@@ -715,7 +926,7 @@ func file_analysis_proto_analysis_proto_rawDescGZIP() []byte {
 	return file_analysis_proto_analysis_proto_rawDescData
 }
 
-var file_analysis_proto_analysis_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_analysis_proto_analysis_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_analysis_proto_analysis_proto_goTypes = []any{
 	(*CalculationRequest)(nil),   // 0: analysis.CalculationRequest
 	(*FeeResponse)(nil),          // 1: analysis.FeeResponse
@@ -727,25 +938,31 @@ var file_analysis_proto_analysis_proto_goTypes = []any{
 	(*TopEntity)(nil),            // 7: analysis.TopEntity
 	(*AnalyticsResponse)(nil),    // 8: analysis.AnalyticsResponse
 	(*GetAnalyticsRequest)(nil),  // 9: analysis.GetAnalyticsRequest
+	(*GetHistoryRequest)(nil),    // 10: analysis.GetHistoryRequest
+	(*ProfitLogItem)(nil),        // 11: analysis.ProfitLogItem
+	(*HistoryResponse)(nil),      // 12: analysis.HistoryResponse
 }
 var file_analysis_proto_analysis_proto_depIdxs = []int32{
-	7, // 0: analysis.AnalyticsResponse.topRestaurants:type_name -> analysis.TopEntity
-	7, // 1: analysis.AnalyticsResponse.topUsers:type_name -> analysis.TopEntity
-	0, // 2: analysis.AnalysisService.CalculateFees:input_type -> analysis.CalculationRequest
-	2, // 3: analysis.AnalysisService.UpdateFeeConfiguration:input_type -> analysis.UpdateConfigRequest
-	4, // 4: analysis.AnalysisService.GetCurrentConfig:input_type -> analysis.GetConfigRequest
-	5, // 5: analysis.AnalysisService.RecordOrderProfit:input_type -> analysis.RecordProfitRequest
-	9, // 6: analysis.AnalysisService.GetAnalytics:input_type -> analysis.GetAnalyticsRequest
-	1, // 7: analysis.AnalysisService.CalculateFees:output_type -> analysis.FeeResponse
-	3, // 8: analysis.AnalysisService.UpdateFeeConfiguration:output_type -> analysis.FeeConfigResponse
-	3, // 9: analysis.AnalysisService.GetCurrentConfig:output_type -> analysis.FeeConfigResponse
-	6, // 10: analysis.AnalysisService.RecordOrderProfit:output_type -> analysis.RecordProfitResponse
-	8, // 11: analysis.AnalysisService.GetAnalytics:output_type -> analysis.AnalyticsResponse
-	7, // [7:12] is the sub-list for method output_type
-	2, // [2:7] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	7,  // 0: analysis.AnalyticsResponse.topRestaurants:type_name -> analysis.TopEntity
+	7,  // 1: analysis.AnalyticsResponse.topUsers:type_name -> analysis.TopEntity
+	11, // 2: analysis.HistoryResponse.logs:type_name -> analysis.ProfitLogItem
+	0,  // 3: analysis.AnalysisService.CalculateFees:input_type -> analysis.CalculationRequest
+	2,  // 4: analysis.AnalysisService.UpdateFeeConfiguration:input_type -> analysis.UpdateConfigRequest
+	4,  // 5: analysis.AnalysisService.GetCurrentConfig:input_type -> analysis.GetConfigRequest
+	5,  // 6: analysis.AnalysisService.RecordOrderProfit:input_type -> analysis.RecordProfitRequest
+	9,  // 7: analysis.AnalysisService.GetAnalytics:input_type -> analysis.GetAnalyticsRequest
+	10, // 8: analysis.AnalysisService.GetProfitHistory:input_type -> analysis.GetHistoryRequest
+	1,  // 9: analysis.AnalysisService.CalculateFees:output_type -> analysis.FeeResponse
+	3,  // 10: analysis.AnalysisService.UpdateFeeConfiguration:output_type -> analysis.FeeConfigResponse
+	3,  // 11: analysis.AnalysisService.GetCurrentConfig:output_type -> analysis.FeeConfigResponse
+	6,  // 12: analysis.AnalysisService.RecordOrderProfit:output_type -> analysis.RecordProfitResponse
+	8,  // 13: analysis.AnalysisService.GetAnalytics:output_type -> analysis.AnalyticsResponse
+	12, // 14: analysis.AnalysisService.GetProfitHistory:output_type -> analysis.HistoryResponse
+	9,  // [9:15] is the sub-list for method output_type
+	3,  // [3:9] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_analysis_proto_analysis_proto_init() }
@@ -759,7 +976,7 @@ func file_analysis_proto_analysis_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_analysis_proto_analysis_proto_rawDesc), len(file_analysis_proto_analysis_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

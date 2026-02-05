@@ -5,6 +5,7 @@ import (
 	"analysis/internal/models"
 	"analysis/internal/service"
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -28,9 +29,12 @@ func (h *AnalysisHandler) CalculateFees(ctx context.Context, req *pb.Calculation
 	}
 
 	return &pb.FeeResponse{
-		AppFee:          res.AppFee,
-		SmallOrderFee:   res.SmallOrderFee,
-		EstimatedProfit: res.EstimatedProfit,
+		AppFee:             res.AppFee,
+		SmallOrderFee:      res.SmallOrderFee,
+		EstimatedProfit:    res.EstimatedProfit,
+		ProfitFromItems:    res.ProfitFromItems,    // Mapped
+		ProfitFromDelivery: res.ProfitFromDelivery, // Mapped
+
 	}, nil
 }
 
@@ -116,6 +120,36 @@ func (h *AnalysisHandler) GetAnalytics(ctx context.Context, _ *pb.GetAnalyticsRe
 		TopRestaurants: topRest,
 		TopUsers:       topUser,
 	}, nil
+}
+
+func (h *AnalysisHandler) GetProfitHistory(ctx context.Context, _ *pb.GetHistoryRequest) (*pb.HistoryResponse, error) {
+	// 1. Security Check
+	if err := h.authorizeAdmin(ctx); err != nil {
+		return nil, err
+	}
+
+	// 2. Get Data
+	logs, err := h.service.GetHistory()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to fetch history")
+	}
+
+	// 3. Map to Proto
+	var protoLogs []*pb.ProfitLogItem
+	for _, l := range logs {
+		protoLogs = append(protoLogs, &pb.ProfitLogItem{
+			OrderId:            l.OrderId.String(),
+			RestaurantId:       l.RestaurantId.String(),
+			AppFee:             l.AppFee,
+			SmallOrderFee:      l.SmallOrderFee,
+			ProfitFromItems:    l.ProfitFromItems,
+			ProfitFromDelivery: l.ProfitFromDelivery,
+			TotalProfit:        l.TotalProfit,
+			CreatedAt:          l.CreatedAt.Format(time.RFC3339),
+		})
+	}
+
+	return &pb.HistoryResponse{Logs: protoLogs}, nil
 }
 
 func mapToProto(c *models.FeeConfiguration) *pb.FeeConfigResponse {

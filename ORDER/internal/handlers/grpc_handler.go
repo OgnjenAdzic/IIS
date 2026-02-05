@@ -194,7 +194,11 @@ func (h *OrderHandler) BidForOrder(ctx context.Context, req *pb.BidRequest) (*pb
 }
 
 func (h *OrderHandler) GetAvailableOrders(ctx context.Context, _ *pb.GetAvailableOrdersRequest) (*pb.GetOrdersResponse, error) {
-	orders, err := h.service.GetAvailableOrders()
+	driverId, err := getUserID(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "Driver ID missing from token")
+	}
+	orders, err := h.service.GetAvailableOrders(driverId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed")
 	}
@@ -259,5 +263,6 @@ func mapToProto(o *models.Order) *pb.OrderResponse {
 		IsPriority:                o.IsPriority,
 		PreparingFoodDeliveryTime: int32(o.FoodReadyAt),
 		DeliveryDurationTime:      int32(o.DeliveryDuration),
+		HasDriverBid:              o.HasCurrentDriverBidded,
 	}
 }

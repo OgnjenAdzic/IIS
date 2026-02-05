@@ -24,6 +24,7 @@ const (
 	AnalysisService_GetCurrentConfig_FullMethodName       = "/analysis.AnalysisService/GetCurrentConfig"
 	AnalysisService_RecordOrderProfit_FullMethodName      = "/analysis.AnalysisService/RecordOrderProfit"
 	AnalysisService_GetAnalytics_FullMethodName           = "/analysis.AnalysisService/GetAnalytics"
+	AnalysisService_GetProfitHistory_FullMethodName       = "/analysis.AnalysisService/GetProfitHistory"
 )
 
 // AnalysisServiceClient is the client API for AnalysisService service.
@@ -35,6 +36,7 @@ type AnalysisServiceClient interface {
 	GetCurrentConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*FeeConfigResponse, error)
 	RecordOrderProfit(ctx context.Context, in *RecordProfitRequest, opts ...grpc.CallOption) (*RecordProfitResponse, error)
 	GetAnalytics(ctx context.Context, in *GetAnalyticsRequest, opts ...grpc.CallOption) (*AnalyticsResponse, error)
+	GetProfitHistory(ctx context.Context, in *GetHistoryRequest, opts ...grpc.CallOption) (*HistoryResponse, error)
 }
 
 type analysisServiceClient struct {
@@ -95,6 +97,16 @@ func (c *analysisServiceClient) GetAnalytics(ctx context.Context, in *GetAnalyti
 	return out, nil
 }
 
+func (c *analysisServiceClient) GetProfitHistory(ctx context.Context, in *GetHistoryRequest, opts ...grpc.CallOption) (*HistoryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HistoryResponse)
+	err := c.cc.Invoke(ctx, AnalysisService_GetProfitHistory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AnalysisServiceServer is the server API for AnalysisService service.
 // All implementations must embed UnimplementedAnalysisServiceServer
 // for forward compatibility.
@@ -104,6 +116,7 @@ type AnalysisServiceServer interface {
 	GetCurrentConfig(context.Context, *GetConfigRequest) (*FeeConfigResponse, error)
 	RecordOrderProfit(context.Context, *RecordProfitRequest) (*RecordProfitResponse, error)
 	GetAnalytics(context.Context, *GetAnalyticsRequest) (*AnalyticsResponse, error)
+	GetProfitHistory(context.Context, *GetHistoryRequest) (*HistoryResponse, error)
 	mustEmbedUnimplementedAnalysisServiceServer()
 }
 
@@ -128,6 +141,9 @@ func (UnimplementedAnalysisServiceServer) RecordOrderProfit(context.Context, *Re
 }
 func (UnimplementedAnalysisServiceServer) GetAnalytics(context.Context, *GetAnalyticsRequest) (*AnalyticsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAnalytics not implemented")
+}
+func (UnimplementedAnalysisServiceServer) GetProfitHistory(context.Context, *GetHistoryRequest) (*HistoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfitHistory not implemented")
 }
 func (UnimplementedAnalysisServiceServer) mustEmbedUnimplementedAnalysisServiceServer() {}
 func (UnimplementedAnalysisServiceServer) testEmbeddedByValue()                         {}
@@ -240,6 +256,24 @@ func _AnalysisService_GetAnalytics_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalysisService_GetProfitHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHistoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalysisServiceServer).GetProfitHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalysisService_GetProfitHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalysisServiceServer).GetProfitHistory(ctx, req.(*GetHistoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AnalysisService_ServiceDesc is the grpc.ServiceDesc for AnalysisService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +300,10 @@ var AnalysisService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAnalytics",
 			Handler:    _AnalysisService_GetAnalytics_Handler,
+		},
+		{
+			MethodName: "GetProfitHistory",
+			Handler:    _AnalysisService_GetProfitHistory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

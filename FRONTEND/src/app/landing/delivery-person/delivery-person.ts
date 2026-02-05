@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../features/order/services/order.service';
 import { Stakeholders } from '../../features/stakeholders/service/stakeholders';
 import { Order } from '../../features/order/models/order.model';
+import { AnalysisService } from '../../features/analysis/services/analysis.service';
+import { FeeConfig } from '../../features/analysis/models/analysis.model';
 
 @Component({
   selector: 'app-delivery-person',
@@ -15,14 +17,19 @@ import { Order } from '../../features/order/models/order.model';
 export class DeliveryPerson implements OnInit, OnDestroy {
   orderService = inject(OrderService);
   stakeholdersService = inject(Stakeholders);
+  analysisService = inject(AnalysisService)
 
   // Signals
   availableOrders = signal<Order[]>([]);
   currentJob = signal<Order | null>(null);
+  analysisConfig = signal<FeeConfig | null>(null);
 
   bidInputs: { [id: string]: number } = {};
   myVehicle = '';
   private refreshInterval: any;
+  private refreshDeliveryFee: any;
+
+
 
   constructor() {
     effect(() => {
@@ -38,27 +45,47 @@ export class DeliveryPerson implements OnInit, OnDestroy {
     const orders = this.availableOrders();
     const profile = this.stakeholdersService.currentProfile();
     const myVehicle = profile.vehicle;
+    console.log("Filtered visible orders:", orders);
     return orders.filter(order => {
       if (!order.isPriority) return true;
 
       return myVehicle === 'CAR';
     });
+
   });
 
   ngOnInit() {
     this.stakeholdersService.loadCurrentProfile();
 
+    this.getDeliveryRevenue();
     this.refreshData();
 
     this.refreshInterval = setInterval(() => {
       this.refreshData();
-    }, 40000);
+    }, 45000);
+
+    this.refreshDeliveryFee = setInterval(() => {
+      this.getDeliveryRevenue();
+    }, 5000);
   }
 
   ngOnDestroy() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
+    if (this.refreshDeliveryFee) {
+      clearInterval(this.refreshDeliveryFee);
+    }
+  }
+
+  getDeliveryRevenue() {
+    this.analysisService.getConfig().subscribe({
+      next: (res) => {
+        this.analysisConfig.set(res);
+        console.log("Company takes:", res.deliveryRevenuePercent + "%");
+      },
+      error: (err) => console.log("Failed to load fees: ", err)
+    });
   }
 
   refreshData() {
@@ -75,6 +102,7 @@ export class DeliveryPerson implements OnInit, OnDestroy {
         // Success: We have a job
         this.currentJob.set(order);
         this.availableOrders.set([]); // Clear bidding list
+        console.log("Active job loaded:", order);
       },
       error: (err) => {
         // 404 Not Found means the driver is free
@@ -109,5 +137,25 @@ export class DeliveryPerson implements OnInit, OnDestroy {
 
   completeDelivery(id: string) {
     this.orderService.updateStatus(id, 'DELIVERED').subscribe(() => this.refreshData());
+  }
+
+  getReadyTime(order: any): Date {
+    if (!order.createdAt) return new Date();
+
+    const created = new Date(order.createdAt);
+    // Use the field name exactly as it appears in your console log
+    const minutesToAdd = order.preparingFoodDeliveryTime || 0;
+
+    return new Date(created.getTime() + (minutesToAdd * 60 * 1000));
+  }
+
+  calculateEarnings(deliveryFee: number): number {
+    const config = this.analysisConfig();
+    if (!config) {
+      return 65
+    }
+    const driverSharePercent = 100 - config.deliveryRevenuePercent;
+    return Math.round(deliveryFee * (driverSharePercent / 100));
+
   }
 }

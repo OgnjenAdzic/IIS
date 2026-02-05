@@ -158,6 +158,7 @@ type OrderResponse struct {
 	IsPriority                bool                   `protobuf:"varint,14,opt,name=isPriority,proto3" json:"isPriority,omitempty"`
 	PreparingFoodDeliveryTime int32                  `protobuf:"varint,15,opt,name=preparingFoodDeliveryTime,proto3" json:"preparingFoodDeliveryTime,omitempty"`
 	DeliveryDurationTime      int32                  `protobuf:"varint,16,opt,name=deliveryDurationTime,proto3" json:"deliveryDurationTime,omitempty"`
+	HasDriverBid              bool                   `protobuf:"varint,17,opt,name=hasDriverBid,proto3" json:"hasDriverBid,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -302,6 +303,13 @@ func (x *OrderResponse) GetDeliveryDurationTime() int32 {
 		return x.DeliveryDurationTime
 	}
 	return 0
+}
+
+func (x *OrderResponse) GetHasDriverBid() bool {
+	if x != nil {
+		return x.HasDriverBid
+	}
+	return false
 }
 
 type CreateOrderRequest struct {
@@ -710,6 +718,7 @@ func (x *BidResponse) GetMessage() string {
 
 type GetAvailableOrdersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	DriverId      string                 `protobuf:"bytes,1,opt,name=driverId,proto3" json:"driverId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -744,6 +753,13 @@ func (*GetAvailableOrdersRequest) Descriptor() ([]byte, []int) {
 	return file_order_proto_order_proto_rawDescGZIP(), []int{9}
 }
 
+func (x *GetAvailableOrdersRequest) GetDriverId() string {
+	if x != nil {
+		return x.DriverId
+	}
+	return ""
+}
+
 var File_order_proto_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_order_proto_rawDesc = "" +
@@ -752,7 +768,7 @@ const file_order_proto_order_proto_rawDesc = "" +
 	"\tOrderItem\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05price\x18\x02 \x01(\x01R\x05price\x12\x1a\n" +
-	"\bquantity\x18\x03 \x01(\x05R\bquantity\"\xc9\x04\n" +
+	"\bquantity\x18\x03 \x01(\x05R\bquantity\"\xed\x04\n" +
 	"\rOrderResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\frestaurantId\x18\x02 \x01(\tR\frestaurantId\x12\x1e\n" +
@@ -778,7 +794,8 @@ const file_order_proto_order_proto_rawDesc = "" +
 	"isPriority\x18\x0e \x01(\bR\n" +
 	"isPriority\x12<\n" +
 	"\x19preparingFoodDeliveryTime\x18\x0f \x01(\x05R\x19preparingFoodDeliveryTime\x122\n" +
-	"\x14deliveryDurationTime\x18\x10 \x01(\x05R\x14deliveryDurationTime\"\xae\x01\n" +
+	"\x14deliveryDurationTime\x18\x10 \x01(\x05R\x14deliveryDurationTime\x12\"\n" +
+	"\fhasDriverBid\x18\x11 \x01(\bR\fhasDriverBid\"\xae\x01\n" +
 	"\x12CreateOrderRequest\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\x12$\n" +
 	"\rcustomAddress\x18\x02 \x01(\tR\rcustomAddress\x12\x1c\n" +
@@ -807,8 +824,9 @@ const file_order_proto_order_proto_rawDesc = "" +
 	"\aminutes\x18\x03 \x01(\x05R\aminutes\"A\n" +
 	"\vBidResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\x1b\n" +
-	"\x19GetAvailableOrdersRequest*n\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"7\n" +
+	"\x19GetAvailableOrdersRequest\x12\x1a\n" +
+	"\bdriverId\x18\x01 \x01(\tR\bdriverId*n\n" +
 	"\vOrderStatus\x12\v\n" +
 	"\aPENDING\x10\x00\x12\r\n" +
 	"\tPREPARING\x10\x01\x12\x14\n" +
